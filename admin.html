@@ -152,6 +152,7 @@
 // ============================================================
 //  状态
 // ============================================================
+const API_BASE = 'https://api.vnlotto.vip';
 const ADMIN_TOKEN_KEY = 'admin_token';
 let adminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
 
@@ -162,7 +163,7 @@ function adminLogin() {
     const token = document.getElementById('adminTokenInput').value.trim();
     if (!token) return;
 
-    fetch('/api/admin/users', {
+    fetch(`${API_BASE}/api/admin/users`, {
         headers: { 'x-admin-token': token }
     }).then(res => {
         if (res.ok) {
@@ -193,7 +194,7 @@ function adminLogout() {
 //  API 请求
 // ============================================================
 function adminFetch(url, options = {}) {
-    return fetch(url, {
+    return fetch(`${API_BASE}${url}`, {
         ...options,
         headers: {
             'x-admin-token': adminToken,
@@ -473,7 +474,7 @@ function init() {
     const token = localStorage.getItem(ADMIN_TOKEN_KEY);
     if (token) {
         adminToken = token;
-        adminFetch('/api/admin/users', {
+        fetch(`${API_BASE}/api/admin/users`, {
             headers: { 'x-admin-token': token }
         }).then(res => {
             if (res.ok) {
