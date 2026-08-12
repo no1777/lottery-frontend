@@ -215,155 +215,6 @@
     </div>
 </div>
 
-// ============================================================
-//  日志筛选和操作
-// ============================================================
-
-// 筛选
-function adminLogFilter() {
-    adminLogPage = 1;
-    loadAdminLogs();
-}
-
-// 重置筛选
-function adminLogReset() {
-    document.getElementById('adminLogStartDate').value = '';
-    document.getElementById('adminLogEndDate').value = '';
-    document.getElementById('adminLogSearchEmail').value = '';
-    adminLogPage = 1;
-    loadAdminLogs();
-}
-
-// 全选切换
-function adminLogToggleAll() {
-    const checked = document.getElementById('adminLogSelectAll').checked;
-    document.querySelectorAll('.admin-log-checkbox').forEach(cb => {
-        cb.checked = checked;
-        const id = cb.dataset.id;
-        if (checked) {
-            adminLogSelectedIds.add(id);
-        } else {
-            adminLogSelectedIds.delete(id);
-        }
-    });
-    updateAdminLogSelectedInfo();
-}
-
-// 全选
-function adminLogSelectAll() {
-    document.querySelectorAll('.admin-log-checkbox').forEach(cb => {
-        cb.checked = true;
-        adminLogSelectedIds.add(cb.dataset.id);
-    });
-    document.getElementById('adminLogSelectAll').checked = true;
-    updateAdminLogSelectedInfo();
-}
-
-// 取消全选
-function adminLogDeselectAll() {
-    document.querySelectorAll('.admin-log-checkbox').forEach(cb => {
-        cb.checked = false;
-        adminLogSelectedIds.delete(cb.dataset.id);
-    });
-    document.getElementById('adminLogSelectAll').checked = false;
-    updateAdminLogSelectedInfo();
-}
-
-// 更新选中数量显示
-function updateAdminLogSelectedInfo() {
-    const el = document.getElementById('adminLogSelectedInfo');
-    if (el) {
-        el.textContent = `已选 ${adminLogSelectedIds.size} 条`;
-    }
-}
-
-// 批量删除
-async function adminLogBatchDelete() {
-    const ids = Array.from(adminLogSelectedIds);
-    if (ids.length === 0) {
-        alert('请先选择要删除的日志');
-        return;
-    }
-    if (!confirm(`确定要删除选中的 ${ids.length} 条日志吗？此操作不可恢复！`)) return;
-
-    try {
-        const data = await adminFetch('/api/admin/logs/batch-delete', {
-            method: 'POST',
-            body: JSON.stringify({ ids })
-        }).then(r => r.json());
-
-        if (data.success) {
-            alert(`✅ ${data.message}`);
-            adminLogSelectedIds.clear();
-            loadAdminLogs();
-        } else {
-            alert('❌ ' + (data.message || '删除失败'));
-        }
-    } catch (error) {
-        alert('❌ 网络错误');
-    }
-}
-
-// 清理日志
-async function adminLogCleanup() {
-    const days = parseInt(document.getElementById('adminCleanupDays').value);
-    if (!confirm(`确定要删除 ${days} 天前的所有日志吗？此操作不可恢复！`)) return;
-
-    const resultEl = document.getElementById('adminCleanupResult');
-    resultEl.textContent = '⏳ 处理中...';
-
-    try {
-        const data = await adminFetch('/api/admin/logs/cleanup', {
-            method: 'POST',
-            body: JSON.stringify({ days })
-        }).then(r => r.json());
-
-        if (data.success) {
-            resultEl.textContent = `✅ 已清理 ${data.deletedCount || 0} 条日志`;
-            setTimeout(() => resultEl.textContent = '', 5000);
-            loadAdminLogs();
-        } else {
-            resultEl.textContent = '❌ ' + (data.message || '清理失败');
-        }
-    } catch (error) {
-        resultEl.textContent = '❌ 网络错误';
-    }
-}
-
-// 上一页
-function adminLogPrevPage() {
-    if (adminLogPage > 1) {
-        adminLogPage--;
-        loadAdminLogs();
-    }
-}
-
-// 下一页
-function adminLogNextPage() {
-    adminLogPage++;
-    loadAdminLogs();
-}
-
-// 更改每页条数
-function adminLogChangeLimit() {
-    adminLogLimit = parseInt(document.getElementById('adminLogLimit').value);
-    adminLogPage = 1;
-    loadAdminLogs();
-}
-
-// 复选框单个切换
-function adminLogToggleCheckbox(id) {
-    const cb = document.querySelector(`.admin-log-checkbox[data-id="${id}"]`);
-    if (cb) {
-        if (cb.checked) {
-            adminLogSelectedIds.add(id);
-        } else {
-            adminLogSelectedIds.delete(id);
-        }
-        updateAdminLogSelectedInfo();
-    }
-}
-
 <script>
 // ============================================================
 //  状态
@@ -785,6 +636,155 @@ function adminLogDelete(id) {
 // 修改原有的 loadLogs 函数，调用 loadAdminLogs
 function loadLogs() {
     loadAdminLogs();
+}
+
+// ============================================================
+//  日志筛选和操作
+// ============================================================
+
+// 筛选
+function adminLogFilter() {
+    adminLogPage = 1;
+    loadAdminLogs();
+}
+
+// 重置筛选
+function adminLogReset() {
+    document.getElementById('adminLogStartDate').value = '';
+    document.getElementById('adminLogEndDate').value = '';
+    document.getElementById('adminLogSearchEmail').value = '';
+    adminLogPage = 1;
+    loadAdminLogs();
+}
+
+// 全选切换
+function adminLogToggleAll() {
+    const checked = document.getElementById('adminLogSelectAll').checked;
+    document.querySelectorAll('.admin-log-checkbox').forEach(cb => {
+        cb.checked = checked;
+        const id = cb.dataset.id;
+        if (checked) {
+            adminLogSelectedIds.add(id);
+        } else {
+            adminLogSelectedIds.delete(id);
+        }
+    });
+    updateAdminLogSelectedInfo();
+}
+
+// 全选
+function adminLogSelectAll() {
+    document.querySelectorAll('.admin-log-checkbox').forEach(cb => {
+        cb.checked = true;
+        adminLogSelectedIds.add(cb.dataset.id);
+    });
+    document.getElementById('adminLogSelectAll').checked = true;
+    updateAdminLogSelectedInfo();
+}
+
+// 取消全选
+function adminLogDeselectAll() {
+    document.querySelectorAll('.admin-log-checkbox').forEach(cb => {
+        cb.checked = false;
+        adminLogSelectedIds.delete(cb.dataset.id);
+    });
+    document.getElementById('adminLogSelectAll').checked = false;
+    updateAdminLogSelectedInfo();
+}
+
+// 更新选中数量显示
+function updateAdminLogSelectedInfo() {
+    const el = document.getElementById('adminLogSelectedInfo');
+    if (el) {
+        el.textContent = `已选 ${adminLogSelectedIds.size} 条`;
+    }
+}
+
+// 批量删除
+async function adminLogBatchDelete() {
+    const ids = Array.from(adminLogSelectedIds);
+    if (ids.length === 0) {
+        alert('请先选择要删除的日志');
+        return;
+    }
+    if (!confirm(`确定要删除选中的 ${ids.length} 条日志吗？此操作不可恢复！`)) return;
+
+    try {
+        const data = await adminFetch('/api/admin/logs/batch-delete', {
+            method: 'POST',
+            body: JSON.stringify({ ids })
+        }).then(r => r.json());
+
+        if (data.success) {
+            alert(`✅ ${data.message}`);
+            adminLogSelectedIds.clear();
+            loadAdminLogs();
+        } else {
+            alert('❌ ' + (data.message || '删除失败'));
+        }
+    } catch (error) {
+        alert('❌ 网络错误');
+    }
+}
+
+// 清理日志
+async function adminLogCleanup() {
+    const days = parseInt(document.getElementById('adminCleanupDays').value);
+    if (!confirm(`确定要删除 ${days} 天前的所有日志吗？此操作不可恢复！`)) return;
+
+    const resultEl = document.getElementById('adminCleanupResult');
+    resultEl.textContent = '⏳ 处理中...';
+
+    try {
+        const data = await adminFetch('/api/admin/logs/cleanup', {
+            method: 'POST',
+            body: JSON.stringify({ days })
+        }).then(r => r.json());
+
+        if (data.success) {
+            resultEl.textContent = `✅ 已清理 ${data.deletedCount || 0} 条日志`;
+            setTimeout(() => resultEl.textContent = '', 5000);
+            loadAdminLogs();
+        } else {
+            resultEl.textContent = '❌ ' + (data.message || '清理失败');
+        }
+    } catch (error) {
+        resultEl.textContent = '❌ 网络错误';
+    }
+}
+
+// 上一页
+function adminLogPrevPage() {
+    if (adminLogPage > 1) {
+        adminLogPage--;
+        loadAdminLogs();
+    }
+}
+
+// 下一页
+function adminLogNextPage() {
+    adminLogPage++;
+    loadAdminLogs();
+}
+
+// 更改每页条数
+function adminLogChangeLimit() {
+    adminLogLimit = parseInt(document.getElementById('adminLogLimit').value);
+    adminLogPage = 1;
+    loadAdminLogs();
+}
+
+// 复选框单个切换
+function adminLogToggleCheckbox(id) {
+    const cb = document.querySelector(`.admin-log-checkbox[data-id="${id}"]`);
+    if (cb) {
+        if (cb.checked) {
+            adminLogSelectedIds.add(id);
+        } else {
+            adminLogSelectedIds.delete(id);
+        }
+        updateAdminLogSelectedInfo();
+    }
 }
     
 // ============================================================
