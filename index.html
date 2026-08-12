@@ -187,7 +187,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     try {
-        const data = await apiRequest('/api/auth/login', {
+        const data = await apiRequest('https://api.vilotto.vip/api/auth/login', {
             method: 'POST',
             body: JSON.stringify({ email, password })
         });
@@ -215,7 +215,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         return;
     }
     try {
-        const data = await apiRequest('/api/auth/register', {
+        const data = await apiRequest('https://api.vilotto.vip/api/auth/register', {
             method: 'POST',
             body: JSON.stringify({ email, password })
         });
@@ -269,7 +269,7 @@ logoutBtn.addEventListener('click', () => {
 // ============================================================
 async function loadDashboard() {
     try {
-        const data = await apiRequest('/api/auth/me');
+        const data = await apiRequest('https://api.vilotto.vip/api/auth/me');
         if (data.success) {
             currentUser = data.user;
             currentApiKey = data.api_key;
@@ -341,7 +341,7 @@ function renderApiKey(apiKey) {
 document.getElementById('applyApiKeyBtn').addEventListener('click', async () => {
     hideMsg();
     try {
-        const data = await apiRequest('/api/auth/api-key', { method: 'POST' });
+        const data = await apiRequest('https://api.vilotto.vip/api/auth/api-key', { method: 'POST' });
         if (data.success) {
             showMsg('✅ ' + data.message, 'success');
             loadDashboard();
@@ -374,7 +374,7 @@ document.getElementById('revokeApiKeyBtn').addEventListener('click', async () =>
 // ============================================================
 async function loadLogs() {
     try {
-        const data = await apiRequest('/api/auth/logs');
+        const data = await apiRequest('https://api.vilotto.vip/api/auth/logs');
         const container = document.getElementById('logsList');
         if (data.success && data.logs && data.logs.length > 0) {
             container.innerHTML = data.logs.map(log => `
