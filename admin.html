@@ -123,29 +123,94 @@
     </div>
 
     <!-- API 调用日志 -->
-    <div class="panel">
-        <div class="panel-header">
-            <h2>📋 API 调用日志</h2>
+<div class="panel">
+    <div class="panel-header">
+        <h2>📋 API 调用日志</h2>
+        <div class="flex">
             <button class="btn-refresh" onclick="loadLogs()">🔄 刷新</button>
         </div>
-        <div style="overflow-x:auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:30px;"><input type="checkbox" id="adminLogSelectAll" onchange="adminLogToggleAll()"></th>
-                        <th>用户</th>
-                        <th>API Key</th>
-                        <th>接口</th>
-                        <th>IP</th>
-                        <th>时间</th>
-                        <th style="width:70px;">操作</th>
-                    </tr>
-                </thead>
-                <tbody id="adminLogTableBody">
-                    <tr><td colspan="7" class="text-center text-muted" style="padding:2rem;">加载中...</td></tr>
-                </tbody>
-            </table>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;align-items:center;background:rgba(0,0,0,0.2);padding:0.8rem;border-radius:1rem;">
+        <div style="flex:1;min-width:120px;">
+            <label style="font-size:0.75rem;color:#b7b9b0;">开始日期</label>
+            <input type="date" id="adminLogStartDate" style="width:100%;padding:0.3rem 0.6rem;border-radius:1rem;border:1px solid #445b6b;background:#1d2f3d;color:#f0e7d0;font-size:0.8rem;">
         </div>
+        <div style="flex:1;min-width:120px;">
+            <label style="font-size:0.75rem;color:#b7b9b0;">结束日期</label>
+            <input type="date" id="adminLogEndDate" style="width:100%;padding:0.3rem 0.6rem;border-radius:1rem;border:1px solid #445b6b;background:#1d2f3d;color:#f0e7d0;font-size:0.8rem;">
+        </div>
+        <div style="flex:1;min-width:150px;">
+            <label style="font-size:0.75rem;color:#b7b9b0;">用户邮箱</label>
+            <input type="text" id="adminLogSearchEmail" placeholder="搜索用户..." style="width:100%;padding:0.3rem 0.6rem;border-radius:1rem;border:1px solid #445b6b;background:#1d2f3d;color:#f0e7d0;font-size:0.8rem;">
+        </div>
+        <button class="btn-sm btn-approve" onclick="adminLogFilter()" style="margin-top:0.8rem;">🔍 筛选</button>
+        <button class="btn-sm btn-refresh" onclick="adminLogReset()" style="margin-top:0.8rem;">↺ 重置</button>
+    </div>
+
+    <!-- 批量操作栏 -->
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.8rem;align-items:center;">
+        <button class="btn-sm btn-refresh" onclick="adminLogSelectAll()">☑ 全选</button>
+        <button class="btn-sm btn-refresh" onclick="adminLogDeselectAll()">☐ 取消全选</button>
+        <button class="btn-sm btn-ban" onclick="adminLogBatchDelete()">🗑️ 删除选中</button>
+        <span style="color:#667a88;font-size:0.75rem;" id="adminLogSelectedInfo">已选 0 条</span>
+        <span style="color:#667a88;font-size:0.75rem;margin-left:auto;" id="adminLogCountInfo">共 0 条</span>
+    </div>
+
+    <!-- 日志表格 -->
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:30px;"><input type="checkbox" id="adminLogSelectAll" onchange="adminLogToggleAll()"></th>
+                    <th>用户</th>
+                    <th>API Key</th>
+                    <th>接口</th>
+                    <th>IP</th>
+                    <th>时间</th>
+                    <th style="width:70px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="adminLogTableBody">
+                <tr><td colspan="7" class="text-center text-muted" style="padding:2rem;">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;padding-top:0.5rem;border-top:1px solid #2a3d4a;">
+        <div style="color:#667a88;font-size:0.8rem;">
+            <span>显示</span> <span id="adminLogStart">0</span>-<span id="adminLogEnd">0</span> / <span id="adminLogTotal">0</span>
+        </div>
+        <div style="display:flex;gap:0.3rem;">
+            <button id="adminLogPrevBtn" class="btn-sm btn-refresh" onclick="adminLogPrevPage()">‹ 上一页</button>
+            <span id="adminLogPageInfo" style="color:#b7b9b0;font-size:0.85rem;display:flex;align-items:center;padding:0 0.5rem;">1 / 1</span>
+            <button id="adminLogNextBtn" class="btn-sm btn-refresh" onclick="adminLogNextPage()">下一页 ›</button>
+        </div>
+        <div style="display:flex;gap:0.3rem;align-items:center;">
+            <span style="color:#667a88;font-size:0.75rem;">每页</span>
+            <select id="adminLogLimit" onchange="adminLogChangeLimit()" style="padding:0.2rem 0.5rem;border-radius:1rem;border:1px solid #445b6b;background:#1d2f3d;color:#f0e7d0;font-size:0.8rem;">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 清理日志 -->
+    <div style="margin-top:1rem;padding-top:0.8rem;border-top:1px solid #2a3d4a;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+        <span style="color:#667a88;font-size:0.8rem;">🗑️ 清理日志：</span>
+        <select id="adminCleanupDays" style="padding:0.3rem 0.8rem;border-radius:1rem;border:1px solid #445b6b;background:#1d2f3d;color:#f0e7d0;font-size:0.85rem;">
+            <option value="7">7天前</option>
+            <option value="30" selected>30天前</option>
+            <option value="90">90天前</option>
+            <option value="180">180天前</option>
+            <option value="365">1年前</option>
+        </select>
+        <button class="btn-sm btn-ban" onclick="adminLogCleanup()">执行清理</button>
+        <span id="adminCleanupResult" style="font-size:0.8rem;color:#ffd700;"></span>
     </div>
 </div>
 
