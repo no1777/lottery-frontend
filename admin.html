@@ -90,8 +90,7 @@
 
     <div class="nav-links">
         <a href="/index.html">🎯 演示页</a>
-        <a href="/portal.html">👤 用户端</a>
-        <a href="#" class="active">🛠️ 管理后台</a>
+        <a href="https://vnlotto.vip/">👤 用户端</a>
         <a href="/api-docs.html">📖 API文档</a>
     </div>
 
@@ -133,15 +132,17 @@
             <table>
                 <thead>
                     <tr>
+                        <th style="width:30px;"><input type="checkbox" id="adminLogSelectAll" onchange="adminLogToggleAll()"></th>
                         <th>用户</th>
                         <th>API Key</th>
                         <th>接口</th>
                         <th>IP</th>
                         <th>时间</th>
+                        <th style="width:70px;">操作</th>
                     </tr>
                 </thead>
-                <tbody id="logTableBody">
-                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">加载中...</td></tr>
+                <tbody id="adminLogTableBody">
+                    <tr><td colspan="7" class="text-center text-muted" style="padding:2rem;">加载中...</td></tr>
                 </tbody>
             </table>
         </div>
