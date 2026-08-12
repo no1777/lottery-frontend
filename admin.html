@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理后台 · 六合彩</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0b1a2e; font-family: 'Segoe UI', sans-serif; padding: 1rem; color: #d4d9c0; min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        #loginOverlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; }
+        #loginOverlay .login-box { background:#1a2a3a; padding:2rem; border-radius:2rem; max-width:400px; width:90%; border:1px solid rgba(255,215,0,0.15); }
+        #loginOverlay .login-box h2 { color:#f6e9b0; text-align:center; margin-bottom:1.5rem; }
+        #loginOverlay .login-box input { width:100%; padding:0.7rem 1rem; border-radius:2rem; border:1px solid #445b6b; background:#0d1a2a; color:#f0e7d0; font-size:1rem; outline:none; margin-bottom:1rem; }
+        #loginOverlay .login-box input:focus { border-color:#ffd700; }
+        #loginOverlay .login-box .btn-login { width:100%; padding:0.7rem; border-radius:2rem; border:none; background:#f8d98c; color:#1f2c1a; font-weight:600; font-size:1rem; cursor:pointer; }
+        #loginOverlay .login-box .btn-login:hover { background:#ffd700; }
+        #loginOverlay .login-box .error { color:#ff6b6b; text-align:center; margin-top:0.5rem; display:none; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,215,0,0.15); }
+        .header h1 { color: #f6e9b0; font-size: 1.6rem; }
+        .header .logout-btn { background: transparent; border: 1px solid #ff6b6b; color: #ff6b6b; padding: 0.3rem 1.2rem; border-radius: 2rem; cursor: pointer; }
+        .nav-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .nav-links a { color: #667a88; text-decoration: none; font-size: 0.9rem; padding: 0.2rem 0.8rem; border-radius: 20px; border: 1px solid rgba(255,215,0,0.05); }
+        .nav-links a:hover { color: #f6e9b0; border-color: rgba(255,215,0,0.15); }
+        .nav-links a.active { color: #ffd700; border-color: #ffd700; background: rgba(255,215,0,0.05); }
+        .panel { background: rgba(255,255,255,0.04); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,215,0,0.06); }
+        .panel .panel-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .panel .panel-header h2 { color: #f6e9b0; font-size: 1.2rem; }
+        .panel .panel-header .count { color: #667a88; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: #1a2a3a; color: #ffd700; padding: 0.5rem 0.8rem; text-align: left; border-bottom: 2px solid #2a3d4a; white-space: nowrap; }
+        td { padding: 0.5rem 0.8rem; border-bottom: 1px solid #1a2a3a; color: #b7b9b0; vertical-align: middle; }
+        .badge { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+        .badge-active { background: rgba(107,218,107,0.2); color: #6bda6b; }
+        .badge-pending { background: rgba(255,215,0,0.2); color: #ffd700; }
+        .badge-banned { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .badge-inactive { background: rgba(255,165,0,0.2); color: #ffa500; }
+        .badge-revoked { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .btn-sm { padding: 0.2rem 0.8rem; border-radius: 2rem; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-approve { background: #2e8b57; color: #fff; }
+        .btn-approve:hover { background: #3ca86b; }
+        .btn-ban { background: #8b0000; color: #fff; }
+        .btn-ban:hover { background: #cc0000; }
+        .btn-extend { background: #d4a017; color: #fff; }
+        .btn-extend:hover { background: #e8b828; }
+        .btn-refresh { background: #445b6b; color: #fff; padding: 0.3rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
+        .btn-refresh:hover { background: #5a7a8a; }
+        .btn-whitelist { background: #4a7db5; color: #fff; }
+        .btn-whitelist:hover { background: #5a8dc5; }
+        .key-box { font-family: monospace; font-size: 0.75rem; color: #6bda6b; word-break: break-all; background: #0d1a2a; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .key-box:hover { white-space: normal; overflow: visible; }
+        .text-muted { color: #667a88; }
+        .text-center { text-align: center; }
+        .flex { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .hidden { display: none !important; }
+        .log-user { font-size: 0.8rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+        @media (max-width: 768px) {
+            .panel { padding: 1rem; }
+            table { font-size: 0.75rem; }
+            th, td { padding: 0.3rem 0.4rem; }
+            .key-box { max-width: 100px; font-size: 0.65rem; }
+        }
+        @media (max-width: 480px) {
+            .panel { padding: 0.8rem; border-radius: 1rem; }
+            table { font-size: 0.65rem; }
+            th, td { padding: 0.2rem 0.3rem; }
+            .btn-sm { padding: 0.1rem 0.5rem; font-size: 0.6rem; }
+            .key-box { max-width: 60px; font-size: 0.55rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 登录遮罩 -->
+<div id="loginOverlay" style="display:flex;">
+    <div class="login-box">
+        <h2>🔐 管理员登录</h2>
+        <input id="adminTokenInput" type="password" placeholder="请输入 Admin Token" />
+        <button class="btn-login" onclick="adminLogin()">登录</button>
+        <p id="loginError" class="error">❌ Token 无效，请重试</p>
+    </div>
+</div>
+
+<!-- 主界面 -->
+<div id="mainApp" class="container" style="display:none;">
+    <div class="header">
+        <h1>🛠️ 管理后台</h1>
+        <button class="logout-btn" onclick="adminLogout()">🚪 退出</button>
+    </div>
+
+    <div class="nav-links">
+        <a href="/index.html">🎯 演示页</a>
+        <a href="/portal.html">👤 用户端</a>
+        <a href="#" class="active">🛠️ 管理后台</a>
+        <a href="/api-docs.html">📖 API文档</a>
+    </div>
+
+    <!-- 用户管理 -->
+    <div class="panel">
+        <div class="panel-header">
+            <h2>👥 用户管理</h2>
+            <div class="flex">
+                <span class="count" id="userCount">共 0 位用户</span>
+                <button class="btn-refresh" onclick="loadUsers()">🔄 刷新</button>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>邮箱</th>
+                        <th>状态</th>
+                        <th>API Key</th>
+                        <th>Key 状态</th>
+                        <th>到期时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- API 调用日志 -->
+    <div class="panel">
+        <div class="panel-header">
+            <h2>📋 API 调用日志</h2>
+            <button class="btn-refresh" onclick="loadLogs()">🔄 刷新</button>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户</th>
+                        <th>API Key</th>
+                        <th>接口</th>
+                        <th>IP</th>
+                        <th>时间</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  状态
+// ============================================================
+const ADMIN_TOKEN_KEY = 'admin_token';
+let adminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
+
+// ============================================================
+//  登录 / 登出
+// ============================================================
+function adminLogin() {
+    const token = document.getElementById('adminTokenInput').value.trim();
+    if (!token) return;
+
+    fetch('/api/admin/users', {
+        headers: { 'x-admin-token': token }
+    }).then(res => {
+        if (res.ok) {
+            localStorage.setItem(ADMIN_TOKEN_KEY, token);
+            adminToken = token;
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            loadUsers();
+            loadLogs();
+        } else {
+            document.getElementById('loginError').style.display = 'block';
+        }
+    }).catch(() => {
+        document.getElementById('loginError').style.display = 'block';
+    });
+}
+
+function adminLogout() {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    adminToken = null;
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('adminTokenInput').value = '';
+    document.getElementById('loginError').style.display = 'none';
+}
+
+// ============================================================
+//  API 请求
+// ============================================================
+function adminFetch(url, options = {}) {
+    return fetch(url, {
+        ...options,
+        headers: {
+            'x-admin-token': adminToken,
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+}
+
+// ============================================================
+//  加载用户列表
+// ============================================================
+function loadUsers() {
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:1rem;">加载中...</td></tr>';
+
+    adminFetch('/api/admin/users')
+        .then(res => {
+            if (res.status === 403) {
+                adminLogout();
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                renderUsers(data.users);
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:1rem;">加载失败</td></tr>';
+            }
+        })
+        .catch(() => {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:1rem;">网络错误</td></tr>';
+        });
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('userTableBody');
+    document.getElementById('userCount').textContent = `共 ${users.length} 位用户`;
+
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:1rem;">暂无用户</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = users.map(user => {
+        const statusMap = {
+            'active': '<span class="badge badge-active">已激活</span>',
+            'pending': '<span class="badge badge-pending">待审批</span>',
+            'banned': '<span class="badge badge-banned">已禁用</span>'
+        };
+        const keyStatusMap = {
+            'active': '<span class="badge badge-active">已激活</span>',
+            'inactive': '<span class="badge badge-inactive">未激活</span>',
+            'revoked': '<span class="badge badge-revoked">已吊销</span>'
+        };
+
+        const userStatus = user.status || 'pending';
+        const keyStatus = user.key_status || null;
+        const isPending = userStatus === 'pending';
+        const isActive = userStatus === 'active';
+        const isKeyActive = keyStatus === 'active';
+
+        let expiresHtml = '<span class="text-muted">-</span>';
+        if (user.expires_at) {
+            const d = new Date(user.expires_at);
+            const now = new Date();
+            const expired = d < now;
+            expiresHtml = `<span style="color:${expired ? '#ff6b6b' : '#6bda6b'};font-size:0.75rem;">${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}${expired ? ' ⚠️' : ''}</span>`;
+        }
+
+        let actions = '';
+        if (isPending) {
+            actions = `<button class="btn-sm btn-approve" onclick="approveUser('${user.id}')">✅ 批准</button>`;
+        } else if (isActive) {
+            actions = `
+                <button class="btn-sm btn-ban" onclick="banUser('${user.id}')">🚫 禁用</button>
+                <button class="btn-sm btn-extend" onclick="extendUser('${user.id}')">📅 延期</button>
+                <button class="btn-sm btn-whitelist" onclick="manageWhitelist('${user.id}')">📝 IP白名单</button>
+            `;
+        } else {
+            actions = `<button class="btn-sm btn-approve" onclick="approveUser('${user.id}')">🔄 恢复</button>`;
+        }
+
+        const apiKeyDisplay = user.api_key
+            ? `<span class="key-box" title="${user.api_key}">${user.api_key}</span>`
+            : '<span class="text-muted">-</span>';
+
+        return `
+            <tr>
+                <td>${user.email || '<span class="text-muted">无邮箱</span>'}</td>
+                <td>${statusMap[userStatus] || userStatus}</td>
+                <td>${apiKeyDisplay}</td>
+                <td>${keyStatus ? (keyStatusMap[keyStatus] || keyStatus) : '<span class="text-muted">-</span>'}</td>
+                <td>${expiresHtml}</td>
+                <td>${actions}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ============================================================
+//  审批
+// ============================================================
+function approveUser(userId) {
+    if (!confirm('确定要批准该用户吗？（将激活API Key，有效期30天）')) return;
+    adminFetch(`/api/admin/users/${userId}/approve`, { method: 'PUT' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ ' + data.message);
+                loadUsers();
+            } else {
+                alert('❌ ' + (data.message || '操作失败'));
+            }
+        })
+        .catch(() => alert('❌ 网络错误'));
+}
+
+// ============================================================
+//  禁用
+// ============================================================
+function banUser(userId) {
+    if (!confirm('确定要禁用该用户吗？')) return;
+    adminFetch(`/api/admin/users/${userId}/ban`, { method: 'PUT' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ 用户已禁用');
+                loadUsers();
+            } else {
+                alert('❌ ' + (data.message || '操作失败'));
+            }
+        })
+        .catch(() => alert('❌ 网络错误'));
+}
+
+// ============================================================
+//  延期
+// ============================================================
+function extendUser(userId) {
+    const days = prompt('请输入延期的天数（默认30天）：', '30');
+    if (days === null) return;
+    if (!days || isNaN(days) || parseInt(days) <= 0) {
+        alert('请输入有效天数');
+        return;
+    }
+    adminFetch(`/api/admin/users/${userId}/extend`, {
+        method: 'PUT',
+        body: JSON.stringify({ days: parseInt(days) })
+    }).then(res => res.json())
+      .then(data => {
+          if (data.success) {
+              alert('✅ ' + data.message);
+              loadUsers();
+          } else {
+              alert('❌ ' + (data.message || '操作失败'));
+          }
+      })
+      .catch(() => alert('❌ 网络错误'));
+}
+
+// ============================================================
+//  IP白名单
+// ============================================================
+function manageWhitelist(userId) {
+    adminFetch(`/api/admin/users/${userId}/whitelist`)
+        .then(res => {
+            if (res.status === 403) {
+                alert('无权限操作，请重新登录');
+                return null;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if (!data.success) {
+                alert('获取白名单失败');
+                return;
+            }
+            // ✅ 注意：后端返回的字段是 ipWhitelist，不是 ip_whitelist
+            const current = data.ipWhitelist || [];
+            const input = prompt(
+                '输入允许的IP地址（用逗号分隔，留空删除所有）：\n' +
+                '当前：' + (current.length > 0 ? current.join(', ') : '空（允许所有IP）')
+            );
+            if (input === null) return;
+
+            const ips = input.trim() ? input.split(',').map(s => s.trim()).filter(s => s) : [];
+            adminFetch(`/api/admin/users/${userId}/whitelist`, {
+                method: 'PUT',
+                body: JSON.stringify({ ips: ips })
+            }).then(res => res.json())
+              .then(result => {
+                  if (result.success) {
+                      alert('✅ 白名单已更新');
+                      loadUsers();
+                      
+                      // ✅ 新增：如果当前选中的用户就是这个用户，刷新白名单显示
+                      if (currentSelectedUserId === userId) {
+                          refreshWhitelistDisplay(userId);
+                      }
+                  } else {
+                      alert('❌ ' + (result.message || '操作失败'));
+                  }
+              });
+        })
+        .catch(() => alert('网络错误'));
+}
+
+// ✅ 新增函数：刷新白名单显示
+function refreshWhitelistDisplay(userId) {
+    adminFetch(`/api/admin/users/${userId}/whitelist`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const ips = data.ipWhitelist || [];
+                // 找到页面中显示白名单的元素并更新
+                const displayElement = document.getElementById('whitelistDisplay');
+                if (displayElement) {
+                    displayElement.textContent = ips.length > 0 ? ips.join(', ') : '（空，允许所有IP）';
+                }
+            }
+        })
+        .catch(() => {});
+}
+
+// ============================================================
+//  加载日志
+// ============================================================
+function loadLogs() {
+    const tbody = document.getElementById('logTableBody');
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">加载中...</td></tr>';
+
+    adminFetch('/api/admin/logs')
+        .then(res => {
+            if (res.status === 403) {
+                // 日志接口 403 只提示，不踢出（或者静默失败）
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">无权限查看日志</td></tr>';
+                return null;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                renderLogs(data.logs || []);
+            } else if (data !== null) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">暂无日志</td></tr>';
+            }
+        })
+        .catch(() => {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">加载失败</td></tr>';
+        });
+}
+
+function renderLogs(logs) {
+    const tbody = document.getElementById('logTableBody');
+    if (!logs || logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">暂无日志</td></tr>';
+        return;
+    }
+    tbody.innerHTML = logs.map(log => `
+        <tr>
+            <td><span class="log-user" title="${log.user_email || ''}">${log.user_email || '-'}</span></td>
+            <td><span class="key-box" title="${log.api_key || ''}">${log.api_key || '-'}</span></td>
+            <td style="font-size:0.8rem;">${log.endpoint || '/'}</td>
+            <td style="font-size:0.75rem;color:#667a88;">${log.ip_address || '-'}</td>
+            <td style="font-size:0.75rem;color:#667a88;">${log.created_at ? new Date(log.created_at).toLocaleString() : '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// ============================================================
+//  初始化
+// ============================================================
+function init() {
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+    if (token) {
+        adminToken = token;
+        adminFetch('/api/admin/users', {
+            headers: { 'x-admin-token': token }
+        }).then(res => {
+            if (res.ok) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                loadUsers();
+                loadLogs();
+            } else {
+                localStorage.removeItem(ADMIN_TOKEN_KEY);
+                adminToken = null;
+                document.getElementById('loginOverlay').style.display = 'flex';
+            }
+        }).catch(() => {
+            document.getElementById('loginOverlay').style.display = 'flex';
+        });
+    } else {
+        document.getElementById('loginOverlay').style.display = 'flex';
+    }
+}
+
+document.getElementById('adminTokenInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') adminLogin();
+});
+
+init();
+</script>
+</body>
+</html>

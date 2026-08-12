@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>API 文档 · 六合彩开发者平台</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0b1a2e; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; padding: 1.5rem; color: #d4d9c0; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,215,0,0.15); }
+        .header h1 { color: #f6e9b0; font-size: 1.8rem; display: flex; align-items: center; gap: 0.5rem; }
+        .header h1 span { background: rgba(255,215,0,0.12); padding: 0.1rem 1rem; border-radius: 60px; font-size: 1rem; border: 1px solid rgba(255,215,0,0.2); }
+        .lang-switch { display: flex; gap: 0.3rem; align-items: center; }
+        .lang-btn { background: transparent; border: 1px solid #3a4d5a; color: #b7b9b0; padding: 0.2rem 0.8rem; border-radius: 20px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
+        .lang-btn:hover { border-color: #ffd700; color: #ffd700; }
+        .lang-btn.active { background: rgba(255,215,0,0.15); border-color: #ffd700; color: #ffd700; }
+        .nav-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .nav-links a { color: #667a88; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; padding: 0.2rem 0.8rem; border-radius: 20px; border: 1px solid rgba(255,215,0,0.05); }
+        .nav-links a:hover { color: #f6e9b0; border-color: rgba(255,215,0,0.15); }
+        .nav-links a.active { color: #ffd700; border-color: #ffd700; background: rgba(255,215,0,0.05); }
+        .section { background: rgba(255,255,255,0.04); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(255,215,0,0.06); }
+        .section h2 { color: #f6e9b0; font-size: 1.2rem; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+        .section h2 .badge { font-size: 0.65rem; background: rgba(255,215,0,0.12); padding: 0.1rem 0.6rem; border-radius: 20px; color: #ffd700; font-weight: 400; }
+        .section h3 { color: #d4d9c0; font-size: 1rem; margin: 1rem 0 0.4rem; }
+        .section p { color: #b7b9b0; line-height: 1.6; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .endpoint { background: #1a2a3a; padding: 0.6rem 1rem; border-radius: 0.8rem; margin: 0.3rem 0 0.8rem; border-left: 3px solid #ffd700; overflow-x: auto; }
+        .endpoint .method { font-weight: 700; color: #ffd700; }
+        .endpoint .path { color: #6bda6b; font-family: monospace; }
+        .code-block { background: #0d1a2a; padding: 0.8rem 1rem; border-radius: 0.8rem; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #d4d9c0; border: 1px solid #2a3d4a; margin: 0.4rem 0; white-space: pre-wrap; word-break: break-all; }
+        .code-block .key { color: #ffd700; }
+        .code-block .string { color: #6bda6b; }
+        .code-block .number { color: #6b9fff; }
+        .code-block .keyword { color: #ff6b6b; }
+        .table-wrap { overflow-x: auto; margin: 0.5rem 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: #1a2a3a; color: #ffd700; padding: 0.4rem 0.8rem; text-align: left; border-bottom: 2px solid #2a3d4a; }
+        td { padding: 0.4rem 0.8rem; border-bottom: 1px solid #1a2a3a; color: #b7b9b0; }
+        .tag { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 12px; font-size: 0.65rem; font-weight: 600; }
+        .tag-required { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .tag-optional { background: rgba(107,218,107,0.15); color: #6bda6b; }
+        .footer { text-align: center; padding: 1.5rem 0; color: #667a88; font-size: 0.75rem; border-top: 1px solid rgba(255,215,0,0.06); margin-top: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } body { padding: 1rem; } .header { flex-direction: column; align-items: stretch; } }
+        .toc { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.3rem 0; margin-bottom: 1rem; }
+        .toc a { color: #667a88; text-decoration: none; font-size: 0.8rem; padding: 0.15rem 0.7rem; border-radius: 20px; border: 1px solid #2a3d4a; transition: all 0.2s; }
+        .toc a:hover { color: #ffd700; border-color: #ffd700; }
+        .status-code { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+        .sc-200 { background: rgba(107,218,107,0.15); color: #6bda6b; }
+        .sc-400 { background: rgba(255,215,0,0.15); color: #ffd700; }
+        .sc-401 { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+        .sc-403 { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .sc-404 { background: rgba(255,107,107,0.1); color: #ff6b6b; }
+        .sc-429 { background: rgba(255,165,0,0.15); color: #ffa500; }
+        .sc-500 { background: rgba(255,0,0,0.15); color: #ff4444; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📖 API <span data-i18n="title">开发者文档</span></h1>
+        <div class="lang-switch">
+            <button class="lang-btn active" data-lang="zh">中文</button>
+            <button class="lang-btn" data-lang="en">English</button>
+            <button class="lang-btn" data-lang="vi">Tiếng Việt</button>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a href="/index.html" data-i18n="nav_demo">🎯 演示页</a>
+        <a href="/portal.html" data-i18n="nav_portal">👤 用户端</a>
+        <a href="/admin.html" data-i18n="nav_admin">🛠️ 管理后台</a>
+        <a href="#" class="active" data-i18n="nav_api">📖 API文档</a>
+    </div>
+
+    <div class="toc">
+        <a href="#overview" data-i18n="toc_overview">📋 概述</a>
+        <a href="#current" data-i18n="toc_current">📊 当前开奖</a>
+        <a href="#history" data-i18n="toc_history">📋 开奖历史</a>
+        <a href="#frequency" data-i18n="toc_frequency">📊 号码频率</a>
+        <a href="#drawtime" data-i18n="toc_drawtime">⏰ 开奖时间</a>
+        <a href="#errors" data-i18n="toc_errors">❌ 错误码</a>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 概述 -->
+    <div class="section" id="overview">
+        <h2>📋 <span data-i18n="overview_title">概述</span></h2>
+        <p data-i18n="overview_desc">六合彩开奖系统外部 API，开发者可通过 API Key 获取开奖数据。</p>
+        <p><strong data-i18n="base_url_label">Base URL:</strong> <code style="color:#6bda6b;">https://114118.top/api</code></p>
+        <p><strong data-i18n="auth_label">认证方式:</strong> <span data-i18n="auth_desc">所有接口需在请求头中携带 <code>X-API-Key</code></span></p>
+        <div class="code-block">X-API-Key: mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+        <p style="font-size:0.85rem;color:#667a88;margin-top:0.5rem;" data-i18n="key_hint">💡 在 <a href="/portal.html" style="color:#ffd700;">用户端</a> 注册登录后可申请 API Key，需管理员激活。</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 当前开奖 -->
+    <div class="section" id="current">
+        <h2>📊 <span data-i18n="current_title">获取当前开奖</span> <span class="badge" data-i18n="api_key_badge">需要 API Key</span></h2>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="path">/v1/draw/current</span>
+        </div>
+        <p data-i18n="current_desc">获取最新一期的开奖号码。</p>
+        <h3 data-i18n="response_label">📥 响应示例</h3>
+        <div class="code-block">{
+    <span class="key">"success"</span>: <span class="keyword">true</span>,
+    <span class="key">"data"</span>: {
+        <span class="key">"period"</span>: <span class="number">9</span>,
+        <span class="key">"numbers"</span>: [<span class="number">1</span>, <span class="number">38</span>, <span class="number">28</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="number">30</span>, <span class="number">17</span>],
+        <span class="key">"draw_time"</span>: <span class="string">"2026-07-30T13:30:00.034Z"</span>
+    }
+}</div>
+        <h3 data-i18n="example_label">💡 示例</h3>
+        <div class="code-block">curl -X GET https://114118.top/api/v1/draw/current \
+  -H "x-api-key: mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</div>
+        <div class="table-wrap" style="margin-top:0.5rem;">
+            <table>
+                <thead><tr><th data-i18n="field_label">字段</th><th data-i18n="type_label">类型</th><th data-i18n="desc_label">说明</th></tr></thead>
+                <tbody>
+                    <tr><td>period</td><td>integer</td><td data-i18n="field_period">期数</td></tr>
+                    <tr><td>numbers</td><td>array</td><td data-i18n="field_numbers">7个开奖号码</td></tr>
+                    <tr><td>draw_time</td><td>string</td><td data-i18n="field_drawtime">开奖时间 (ISO 8601)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 开奖历史 -->
+    <div class="section" id="history">
+        <h2>📋 <span data-i18n="history_title">获取开奖历史</span> <span class="badge" data-i18n="api_key_badge">需要 API Key</span></h2>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="path">/v1/draw/history</span>
+        </div>
+        <p data-i18n="history_desc">获取历史开奖记录，支持分页。</p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th data-i18n="param_label">参数</th><th data-i18n="type_label">类型</th><th data-i18n="desc_label">说明</th></tr></thead>
+                <tbody>
+                    <tr><td>limit</td><td>integer</td><td data-i18n="param_limit">每页数量（默认 20）</td></tr>
+                    <tr><td>offset</td><td>integer</td><td data-i18n="param_offset">偏移量（默认 0）</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <h3 data-i18n="response_label">📥 响应示例</h3>
+        <div class="code-block">{
+    <span class="key">"success"</span>: <span class="keyword">true</span>,
+    <span class="key">"data"</span>: [
+        { <span class="key">"period"</span>: <span class="number">9</span>, <span class="key">"numbers"</span>: [...], <span class="key">"draw_time"</span>: <span class="string">"..."</span> }
+    ],
+    <span class="key">"pagination"</span>: {
+        <span class="key">"limit"</span>: <span class="number">5</span>,
+        <span class="key">"offset"</span>: <span class="number">0</span>,
+        <span class="key">"total"</span>: <span class="number">9</span>
+    }
+}</div>
+        <h3 data-i18n="example_label">💡 示例</h3>
+        <div class="code-block">curl -X GET "https://114118.top/api/v1/draw/history?limit=5&offset=0" \
+  -H "x-api-key: mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 号码频率 -->
+    <div class="section" id="frequency">
+        <h2>📊 <span data-i18n="frequency_title">获取号码频率</span> <span class="badge" data-i18n="api_key_badge">需要 API Key</span></h2>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="path">/v1/stats/frequency</span>
+        </div>
+        <p data-i18n="frequency_desc">统计每个号码在所有历史开奖中出现的次数，按频率降序排列。</p>
+        <h3 data-i18n="response_label">📥 响应示例</h3>
+        <div class="code-block">{
+    <span class="key">"success"</span>: <span class="keyword">true</span>,
+    <span class="key">"data"</span>: [
+        { <span class="key">"number"</span>: <span class="number">11</span>, <span class="key">"count"</span>: <span class="number">4</span> },
+        { <span class="key">"number"</span>: <span class="number">10</span>, <span class="key">"count"</span>: <span class="number">3</span> }
+    ]
+}</div>
+        <h3 data-i18n="example_label">💡 示例</h3>
+        <div class="code-block">curl -X GET https://114118.top/api/v1/stats/frequency \
+  -H "x-api-key: mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 开奖时间 -->
+    <div class="section" id="drawtime">
+        <h2>⏰ <span data-i18n="drawtime_title">获取开奖时间配置</span> <span class="badge" data-i18n="api_key_badge">需要 API Key</span></h2>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="path">/v1/config/draw-time</span>
+        </div>
+        <p data-i18n="drawtime_desc">获取每日固定开奖时间，用于同步倒计时。</p>
+        <h3 data-i18n="response_label">📥 响应示例</h3>
+        <div class="code-block">{
+    <span class="key">"success"</span>: <span class="keyword">true</span>,
+    <span class="key">"data"</span>: {
+        <span class="key">"draw_time"</span>: <span class="string">"20:30"</span>
+    }
+}</div>
+        <h3 data-i18n="example_label">💡 示例</h3>
+        <div class="code-block">curl -X GET https://114118.top/api/v1/config/draw-time \
+  -H "x-api-key: mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 错误码 -->
+    <div class="section" id="errors">
+        <h2>❌ <span data-i18n="errors_title">错误码</span></h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th data-i18n="error_code_label">状态码</th><th data-i18n="error_meaning_label">含义</th><th data-i18n="error_solution_label">解决方法</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="status-code sc-200">200</span></td><td data-i18n="err_200">成功</td><td>-</td></tr>
+                    <tr><td><span class="status-code sc-400">400</span></td><td data-i18n="err_400">请求参数错误</td><td data-i18n="err_400_sol">检查参数格式</td></tr>
+                    <tr><td><span class="status-code sc-401">401</span></td><td data-i18n="err_401">缺少 API Key</td><td data-i18n="err_401_sol">添加 <code>X-API-Key</code> 请求头</td></tr>
+                    <tr><td><span class="status-code sc-403">403</span></td><td data-i18n="err_403">API Key 无效或未激活</td><td data-i18n="err_403_sol">联系管理员激活</td></tr>
+                    <tr><td><span class="status-code sc-404">404</span></td><td data-i18n="err_404">接口不存在</td><td data-i18n="err_404_sol">检查 URL 路径</td></tr>
+                    <tr><td><span class="status-code sc-429">429</span></td><td data-i18n="err_429">请求频率超限</td><td data-i18n="err_429_sol">降低调用频率（每分钟60次）</td></tr>
+                    <tr><td><span class="status-code sc-500">500</span></td><td data-i18n="err_500">服务器内部错误</td><td data-i18n="err_500_sol">稍后重试或联系管理员</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span data-i18n="footer">© 2026 六合彩开奖系统 · 开发者平台</span>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  国际化
+// ============================================================
+const i18n = {
+    locale: 'zh',
+    data: {
+        zh: {
+            title: '开发者文档',
+            nav_demo: '🎯 演示页',
+            nav_portal: '👤 用户端',
+            nav_admin: '🛠️ 管理后台',
+            nav_api: '📖 API文档',
+            toc_overview: '📋 概述',
+            toc_current: '📊 当前开奖',
+            toc_history: '📋 开奖历史',
+            toc_frequency: '📊 号码频率',
+            toc_drawtime: '⏰ 开奖时间',
+            toc_errors: '❌ 错误码',
+            overview_title: '概述',
+            overview_desc: '六合彩开奖系统外部 API，开发者可通过 API Key 获取开奖数据。',
+            base_url_label: 'Base URL',
+            auth_label: '认证方式',
+            auth_desc: '所有接口需在请求头中携带 X-API-Key',
+            key_hint: '💡 在 用户端 注册登录后可申请 API Key，需管理员激活。',
+            current_title: '获取当前开奖',
+            api_key_badge: '需要 API Key',
+            current_desc: '获取最新一期的开奖号码。',
+            response_label: '📥 响应示例',
+            example_label: '💡 示例',
+            field_label: '字段',
+            type_label: '类型',
+            desc_label: '说明',
+            field_period: '期数',
+            field_numbers: '7个开奖号码',
+            field_drawtime: '开奖时间 (ISO 8601)',
+            history_title: '获取开奖历史',
+            history_desc: '获取历史开奖记录，支持分页。',
+            param_label: '参数',
+            param_limit: '每页数量（默认 20）',
+            param_offset: '偏移量（默认 0）',
+            frequency_title: '获取号码频率',
+            frequency_desc: '统计每个号码在所有历史开奖中出现的次数，按频率降序排列。',
+            drawtime_title: '获取开奖时间配置',
+            drawtime_desc: '获取每日固定开奖时间，用于同步倒计时。',
+            errors_title: '错误码',
+            error_code_label: '状态码',
+            error_meaning_label: '含义',
+            error_solution_label: '解决方法',
+            err_200: '成功',
+            err_400: '请求参数错误',
+            err_400_sol: '检查参数格式',
+            err_401: '缺少 API Key',
+            err_401_sol: '添加 X-API-Key 请求头',
+            err_403: 'API Key 无效或未激活',
+            err_403_sol: '联系管理员激活',
+            err_404: '接口不存在',
+            err_404_sol: '检查 URL 路径',
+            err_429: '请求频率超限',
+            err_429_sol: '降低调用频率（每分钟60次）',
+            err_500: '服务器内部错误',
+            err_500_sol: '稍后重试或联系管理员',
+            footer: '© 2026 六合彩开奖系统 · 开发者平台'
+        },
+        en: {
+            title: 'Developer Documentation',
+            nav_demo: '🎯 Demo',
+            nav_portal: '👤 Portal',
+            nav_admin: '🛠️ Admin',
+            nav_api: '📖 API Docs',
+            toc_overview: '📋 Overview',
+            toc_current: '📊 Current Draw',
+            toc_history: '📋 Draw History',
+            toc_frequency: '📊 Number Frequency',
+            toc_drawtime: '⏰ Draw Time',
+            toc_errors: '❌ Error Codes',
+            overview_title: 'Overview',
+            overview_desc: 'Lottery draw system external API. Developers can get draw data via API Key.',
+            base_url_label: 'Base URL',
+            auth_label: 'Auth Method',
+            auth_desc: 'All APIs require X-API-Key in request header',
+            key_hint: '💡 Register and login at Portal to apply for API Key (requires admin activation).',
+            current_title: 'Get Current Draw',
+            api_key_badge: 'API Key Required',
+            current_desc: 'Get the latest draw result.',
+            response_label: '📥 Response Example',
+            example_label: '💡 Example',
+            field_label: 'Field',
+            type_label: 'Type',
+            desc_label: 'Description',
+            field_period: 'Period number',
+            field_numbers: '7 draw numbers',
+            field_drawtime: 'Draw time (ISO 8601)',
+            history_title: 'Get Draw History',
+            history_desc: 'Get historical draw records with pagination.',
+            param_label: 'Parameter',
+            param_limit: 'Items per page (default 20)',
+            param_offset: 'Offset (default 0)',
+            frequency_title: 'Get Number Frequency',
+            frequency_desc: 'Count occurrences of each number across all draws, sorted by frequency descending.',
+            drawtime_title: 'Get Draw Time Config',
+            drawtime_desc: 'Get daily scheduled draw time for countdown sync.',
+            errors_title: 'Error Codes',
+            error_code_label: 'Status Code',
+            error_meaning_label: 'Meaning',
+            error_solution_label: 'Solution',
+            err_200: 'Success',
+            err_400: 'Bad Request',
+            err_400_sol: 'Check parameter format',
+            err_401: 'Missing API Key',
+            err_401_sol: 'Add X-API-Key header',
+            err_403: 'Invalid or inactive API Key',
+            err_403_sol: 'Contact admin to activate',
+            err_404: 'Endpoint not found',
+            err_404_sol: 'Check URL path',
+            err_429: 'Rate limit exceeded',
+            err_429_sol: 'Reduce request frequency (60/min)',
+            err_500: 'Internal Server Error',
+            err_500_sol: 'Retry later or contact admin',
+            footer: '© 2026 Lottery Draw System · Developer Platform'
+        },
+        vi: {
+            title: 'Tài liệu dành cho nhà phát triển',
+            nav_demo: '🎯 Trang demo',
+            nav_portal: '👤 Cổng người dùng',
+            nav_admin: '🛠️ Quản trị',
+            nav_api: '📖 Tài liệu API',
+            toc_overview: '📋 Tổng quan',
+            toc_current: '📊 Quay số hiện tại',
+            toc_history: '📋 Lịch sử quay số',
+            toc_frequency: '📊 Tần suất số',
+            toc_drawtime: '⏰ Giờ quay số',
+            toc_errors: '❌ Mã lỗi',
+            overview_title: 'Tổng quan',
+            overview_desc: 'API bên ngoài của hệ thống quay số xổ số. Nhà phát triển có thể lấy dữ liệu quay số qua API Key.',
+            base_url_label: 'Base URL',
+            auth_label: 'Phương thức xác thực',
+            auth_desc: 'Tất cả API yêu cầu X-API-Key trong header',
+            key_hint: '💡 Đăng ký và đăng nhập tại Cổng người dùng để xin API Key (cần quản trị viên kích hoạt).',
+            current_title: 'Lấy quay số hiện tại',
+            api_key_badge: 'Cần API Key',
+            current_desc: 'Lấy kết quả quay số mới nhất.',
+            response_label: '📥 Phản hồi mẫu',
+            example_label: '💡 Ví dụ',
+            field_label: 'Trường',
+            type_label: 'Loại',
+            desc_label: 'Mô tả',
+            field_period: 'Kỳ số',
+            field_numbers: '7 số quay',
+            field_drawtime: 'Thời gian quay (ISO 8601)',
+            history_title: 'Lấy lịch sử quay số',
+            history_desc: 'Lấy lịch sử quay số có phân trang.',
+            param_label: 'Tham số',
+            param_limit: 'Số lượng mỗi trang (mặc định 20)',
+            param_offset: 'Độ lệch (mặc định 0)',
+            frequency_title: 'Lấy tần suất số',
+            frequency_desc: 'Thống kê số lần xuất hiện của mỗi số trong tất cả các kỳ quay, sắp xếp theo tần suất giảm dần.',
+            drawtime_title: 'Lấy cấu hình giờ quay',
+            drawtime_desc: 'Lấy giờ quay cố định hàng ngày để đồng bộ đếm ngược.',
+            errors_title: 'Mã lỗi',
+            error_code_label: 'Mã trạng thái',
+            error_meaning_label: 'Ý nghĩa',
+            error_solution_label: 'Giải pháp',
+            err_200: 'Thành công',
+            err_400: 'Yêu cầu sai định dạng',
+            err_400_sol: 'Kiểm tra định dạng tham số',
+            err_401: 'Thiếu API Key',
+            err_401_sol: 'Thêm header X-API-Key',
+            err_403: 'API Key không hợp lệ hoặc chưa kích hoạt',
+            err_403_sol: 'Liên hệ quản trị viên để kích hoạt',
+            err_404: 'Không tìm thấy',
+            err_404_sol: 'Kiểm tra đường dẫn URL',
+            err_429: 'Vượt quá giới hạn tần suất',
+            err_429_sol: 'Giảm tần suất gọi (60/phút)',
+            err_500: 'Lỗi máy chủ nội bộ',
+            err_500_sol: 'Thử lại sau hoặc liên hệ quản trị viên',
+            footer: '© 2026 Hệ thống quay số xổ số · Nền tảng dành cho nhà phát triển'
+        }
+    }
+};
+
+function t(key) {
+    const dict = i18n.data[i18n.locale] || i18n.data.zh;
+    return dict[key] || key;
+}
+
+function updateAll() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+    });
+}
+
+function setLocale(locale) {
+    if (i18n.data[locale]) {
+        i18n.locale = locale;
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === locale));
+        updateAll();
+    }
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        setLocale(this.dataset.lang);
+    });
+});
+
+updateAll();
+</script>
+</body>
+</html>

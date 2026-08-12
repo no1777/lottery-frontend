@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六合彩 · 开发者平台</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0b1a2e; font-family: 'Segoe UI', sans-serif; padding: 2rem; color: #f0e6c0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .container { max-width: 600px; width: 100%; background: rgba(255,255,255,0.07); border-radius: 2rem; padding: 2rem; backdrop-filter: blur(12px); border: 1px solid rgba(255,215,100,0.15); }
+        h1 { color: #f6e9b0; text-align: center; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        h1 span { background: rgba(255,215,0,0.15); padding: 0.05rem 0.8rem; border-radius: 60px; font-size: 1rem; border: 1px solid rgba(255,215,0,0.2); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; color: #b7b9b0; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 0.7rem 1rem; border-radius: 2rem; border: 1px solid #445b6b; background: #1d2f3d; color: #f0e7d0; font-size: 1rem; outline: none; }
+        .form-group input:focus { border-color: #ffd700; }
+        .btn { padding: 0.7rem 2rem; border-radius: 2rem; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: #f8d98c; color: #1f2c1a; }
+        .btn-primary:hover { background: #ffd700; }
+        .btn-secondary { background: #b8cbd9; color: #0e1c2a; }
+        .btn-danger { background: #ff6b6b; color: #fff; }
+        .btn-danger:hover { background: #ff4444; }
+        .btn-sm { padding: 0.3rem 1rem; font-size: 0.85rem; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 1px solid #2a3d4a; padding-bottom: 0.5rem; }
+        .tabs button { padding: 0.4rem 1.2rem; border-radius: 2rem; border: 1px solid #3a4d5a; background: transparent; color: #b7b9b0; cursor: pointer; transition: all 0.2s; }
+        .tabs button:hover { border-color: #ffd700; color: #ffd700; }
+        .tabs button.active { background: rgba(255,215,0,0.15); border-color: #ffd700; color: #ffd700; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+        .key-box { background: #1d2f3d; padding: 0.8rem 1rem; border-radius: 1rem; border: 1px solid #ffd700; word-break: break-all; font-family: monospace; margin: 0.5rem 0; font-size: 0.85rem; color: #f0e7d0; }
+        .status-badge { padding: 0.2rem 0.8rem; border-radius: 2rem; font-size: 0.8rem; display: inline-block; }
+        .status-active { background: #2e8b57; color: #fff; }
+        .status-inactive { background: #8b4513; color: #fff; }
+        .status-pending { background: #b8860b; color: #fff; }
+        .status-revoked { background: #8b0000; color: #fff; }
+        .msg { padding: 0.8rem 1rem; border-radius: 1rem; margin-bottom: 1rem; display: none; }
+        .msg-error { background: rgba(255,0,0,0.2); border: 1px solid #ff6b6b; color: #ff6b6b; display: block; }
+        .msg-success { background: rgba(0,255,0,0.1); border: 1px solid #6bda6b; color: #6bda6b; display: block; }
+        .msg-info { background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; display: block; }
+        .hidden { display: none !important; }
+        .log-item { padding: 0.3rem 0; border-bottom: 1px solid #2a3d4a; font-size: 0.85rem; color: #b7b9b0; display: flex; justify-content: space-between; }
+        .log-item .time { color: #667a88; font-size: 0.75rem; }
+        .divider { border: none; border-top: 1px solid #2a3d4a; margin: 1rem 0; }
+        .user-info { background: rgba(0,0,0,0.2); padding: 0.8rem 1rem; border-radius: 1rem; margin-bottom: 0.5rem; }
+        .user-info p { margin: 0.2rem 0; }
+        .flex-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+        .mt-1 { margin-top: 0.5rem; }
+        .text-muted { color: #667a88; font-size: 0.85rem; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎰 六合彩 <span>开发者平台</span></h1>
+
+    <div id="msg" class="msg"></div>
+
+    <!-- Tabs -->
+    <div class="tabs" id="tabNav">
+        <button class="active" data-tab="tab-login">登录</button>
+        <button data-tab="tab-register">注册</button>
+        <button data-tab="tab-dashboard" id="dashboardTab" style="display:none;">我的API</button>
+        <button data-tab="tab-logs" id="logsTab" style="display:none;">调用记录</button>
+        <button id="logoutBtn" style="display:none; border-color:#ff6b6b; color:#ff6b6b;">退出</button>
+    </div>
+
+    <!-- Tab: 登录 -->
+    <div id="tab-login" class="tab-content active">
+        <form id="loginForm">
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="loginEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="loginPassword" placeholder="至少6位" minlength="6" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">登录</button>
+        </form>
+    </div>
+
+    <!-- Tab: 注册 -->
+    <div id="tab-register" class="tab-content">
+        <form id="registerForm">
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="registerEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="registerPassword" placeholder="至少6位" minlength="6" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">注册并申请API密钥</button>
+            <p class="text-muted text-center mt-1">注册后需管理员审批方可使用</p>
+        </form>
+    </div>
+
+    <!-- Tab: 仪表盘 -->
+    <div id="tab-dashboard" class="tab-content">
+        <div class="user-info" id="userInfo"></div>
+        <hr class="divider">
+        <h3 style="color:#f6e9b0; font-size:1rem;">🔑 API密钥</h3>
+        <div id="apiKeyInfo">
+            <p class="text-muted">暂无API密钥</p>
+        </div>
+        <div class="flex-row mt-1">
+            <button id="applyApiKeyBtn" class="btn btn-primary btn-sm">申请 API Key</button>
+            <button id="revokeApiKeyBtn" class="btn btn-danger btn-sm hidden">吊销</button>
+        </div>
+        <hr class="divider">
+        <p class="text-muted" style="font-size:0.8rem;">💡 API Key 需管理员激活后才能使用</p>
+    </div>
+
+    <!-- Tab: 调用记录 -->
+    <div id="tab-logs" class="tab-content">
+        <div id="logsList"><p class="text-muted">暂无调用记录</p></div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  状态
+// ============================================================
+const API_BASE = window.location.origin;
+let token = localStorage.getItem('jwt_token');
+let currentUser = null;
+let currentApiKey = null;
+
+// ============================================================
+//  DOM 引用
+// ============================================================
+const msgEl = document.getElementById('msg');
+const tabs = document.querySelectorAll('#tabNav button[data-tab]');
+const dashboardTab = document.getElementById('dashboardTab');
+const logsTab = document.getElementById('logsTab');
+const logoutBtn = document.getElementById('logoutBtn');
+
+// ============================================================
+//  工具函数
+// ============================================================
+function showMsg(message, type = 'info') {
+    msgEl.textContent = message;
+    msgEl.className = 'msg msg-' + type;
+}
+
+function hideMsg() {
+    msgEl.className = 'msg';
+}
+
+function apiRequest(url, options = {}) {
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+    if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+    }
+    return fetch(API_BASE + url, { ...options, headers }).then(res => res.json());
+}
+
+function switchTab(tabId) {
+    tabs.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.toggle('active', el.id === tabId);
+    });
+}
+
+function getStatusBadge(status) {
+    const map = {
+        'active': '<span class="status-badge status-active">已激活</span>',
+        'inactive': '<span class="status-badge status-inactive">未激活</span>',
+        'pending': '<span class="status-badge status-pending">待审批</span>',
+        'revoked': '<span class="status-badge status-revoked">已吊销</span>'
+    };
+    return map[status] || status;
+}
+
+// ============================================================
+//  登录 / 注册
+// ============================================================
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    try {
+        const data = await apiRequest('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+        if (data.success) {
+            token = data.token;
+            currentUser = data.user;
+            localStorage.setItem('jwt_token', token);
+            showMsg('✅ 登录成功！', 'success');
+            afterLogin();
+        } else {
+            showMsg('❌ ' + (data.message || '登录失败'), 'error');
+        }
+    } catch (err) {
+        showMsg('❌ 网络错误，请重试', 'error');
+    }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    if (password.length < 6) {
+        showMsg('❌ 密码至少6位', 'error');
+        return;
+    }
+    try {
+        const data = await apiRequest('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+        if (data.success) {
+            showMsg('✅ ' + data.message, 'success');
+            document.getElementById('registerForm').reset();
+            // 自动切换到登录
+            switchTab('tab-login');
+        } else {
+            showMsg('❌ ' + (data.message || '注册失败'), 'error');
+        }
+    } catch (err) {
+        showMsg('❌ 网络错误，请重试', 'error');
+    }
+});
+
+// ============================================================
+//  登录后状态
+// ============================================================
+function afterLogin() {
+    dashboardTab.style.display = 'inline-block';
+    logsTab.style.display = 'inline-block';
+    logoutBtn.style.display = 'inline-block';
+    // 隐藏登录和注册tab
+    document.querySelector('#tabNav button[data-tab="tab-login"]').style.display = 'none';
+    document.querySelector('#tabNav button[data-tab="tab-register"]').style.display = 'none';
+    switchTab('tab-dashboard');
+    loadDashboard();
+}
+
+function beforeLogout() {
+    dashboardTab.style.display = 'none';
+    logsTab.style.display = 'none';
+    logoutBtn.style.display = 'none';
+    document.querySelector('#tabNav button[data-tab="tab-login"]').style.display = 'inline-block';
+    document.querySelector('#tabNav button[data-tab="tab-register"]').style.display = 'inline-block';
+    switchTab('tab-login');
+}
+
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('jwt_token');
+    token = null;
+    currentUser = null;
+    currentApiKey = null;
+    beforeLogout();
+    showMsg('已退出', 'info');
+});
+
+// ============================================================
+//  仪表盘
+// ============================================================
+async function loadDashboard() {
+    try {
+        const data = await apiRequest('/api/auth/me');
+        if (data.success) {
+            currentUser = data.user;
+            currentApiKey = data.api_key;
+            renderUserInfo(data.user);
+            renderApiKey(data.api_key);
+        } else {
+            showMsg('❌ ' + (data.message || '获取用户信息失败'), 'error');
+        }
+    } catch (err) {
+        showMsg('❌ 网络错误', 'error');
+    }
+}
+
+function renderUserInfo(user) {
+    const statusMap = {
+        'pending': '<span class="status-badge status-pending">待审批</span>',
+        'active': '<span class="status-badge status-active">已激活</span>',
+        'banned': '<span class="status-badge status-revoked">已禁用</span>'
+    };
+    document.getElementById('userInfo').innerHTML = `
+        <p><strong>📧 邮箱：</strong>${user.email}</p>
+        <p><strong>📊 状态：</strong>${statusMap[user.status] || user.status}</p>
+        <p><strong>📅 注册时间：</strong>${user.createdAt ? new Date(user.createdAt).toLocaleString() : '-'}</p>
+    `;
+}
+
+function renderApiKey(apiKey) {
+    const container = document.getElementById('apiKeyInfo');
+    const applyBtn = document.getElementById('applyApiKeyBtn');
+    const revokeBtn = document.getElementById('revokeApiKeyBtn');
+
+    if (apiKey) {
+        // ★ 处理过期时间显示 ★
+        let expiresHtml = '';
+        if (apiKey.expires_at) {
+            const expiresAt = new Date(apiKey.expires_at);
+            const now = new Date();
+            const isExpired = expiresAt < now;
+            const color = isExpired ? '#ff6b6b' : '#6bda6b';
+            expiresHtml = `<p class="text-muted" style="font-size:0.8rem;">
+                到期时间：<span style="color:${color};font-weight:600;">
+                    ${expiresAt.toLocaleString()}
+                    ${isExpired ? ' ⚠️ 已过期' : ''}
+                </span>
+            </p>`;
+        } else {
+            expiresHtml = `<p class="text-muted" style="font-size:0.8rem;">到期时间：<span style="color:#ffd700;">永久有效</span></p>`;
+        }
+
+        container.innerHTML = `
+            <div class="key-box">${apiKey.api_key}</div>
+            <p>状态：${getStatusBadge(apiKey.status)}</p>
+            ${expiresHtml}
+            ${apiKey.last_used_at ? `<p class="text-muted" style="font-size:0.8rem;">最后使用：${new Date(apiKey.last_used_at).toLocaleString()}</p>` : ''}
+        `;
+        applyBtn.classList.add('hidden');
+        if (apiKey.status === 'active') {
+            revokeBtn.classList.remove('hidden');
+        } else {
+            revokeBtn.classList.add('hidden');
+        }
+    } else {
+        container.innerHTML = '<p class="text-muted">暂无API密钥，点击下方申请</p>';
+        applyBtn.classList.remove('hidden');
+        revokeBtn.classList.add('hidden');
+    }
+}
+
+document.getElementById('applyApiKeyBtn').addEventListener('click', async () => {
+    hideMsg();
+    try {
+        const data = await apiRequest('/api/auth/api-key', { method: 'POST' });
+        if (data.success) {
+            showMsg('✅ ' + data.message, 'success');
+            loadDashboard();
+        } else {
+            showMsg('❌ ' + (data.message || '申请失败'), 'error');
+        }
+    } catch (err) {
+        showMsg('❌ 网络错误', 'error');
+    }
+});
+
+document.getElementById('revokeApiKeyBtn').addEventListener('click', async () => {
+    if (!confirm('确定要吊销当前 API Key 吗？此操作不可撤销！')) return;
+    hideMsg();
+    try {
+        const data = await apiRequest('/api/auth/api-key', { method: 'DELETE' });
+        if (data.success) {
+            showMsg('✅ ' + data.message, 'success');
+            loadDashboard();
+        } else {
+            showMsg('❌ ' + (data.message || '吊销失败'), 'error');
+        }
+    } catch (err) {
+        showMsg('❌ 网络错误', 'error');
+    }
+});
+
+// ============================================================
+//  调用记录
+// ============================================================
+async function loadLogs() {
+    try {
+        const data = await apiRequest('/api/auth/logs');
+        const container = document.getElementById('logsList');
+        if (data.success && data.logs && data.logs.length > 0) {
+            container.innerHTML = data.logs.map(log => `
+                <div class="log-item">
+                    <span>${log.endpoint || '/'}</span>
+                    <span class="time">${new Date(log.created_at).toLocaleString()}</span>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = '<p class="text-muted">暂无调用记录</p>';
+        }
+    } catch (err) {
+        document.getElementById('logsList').innerHTML = '<p class="text-muted">加载失败</p>';
+    }
+}
+
+// ============================================================
+//  Tab 切换事件
+// ============================================================
+tabs.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        switchTab(tabId);
+        if (tabId === 'tab-logs' && token) {
+            loadLogs();
+        }
+        if (tabId === 'tab-dashboard' && token) {
+            loadDashboard();
+        }
+    });
+});
+
+// ============================================================
+//  初始化
+// ============================================================
+if (token) {
+    afterLogin();
+} else {
+    beforeLogout();
+}
+</script>
+</body>
+</html>
