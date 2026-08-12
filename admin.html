@@ -786,6 +786,71 @@ function adminLogToggleCheckbox(id) {
         updateAdminLogSelectedInfo();
     }
 }
+
+// ============================================================
+//  全选 / 取消全选
+// ============================================================
+
+// 全选
+function adminLogSelectAll() {
+    const checkboxes = document.querySelectorAll('.admin-log-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = true;
+        adminLogSelectedIds.add(cb.dataset.id);
+    });
+    const selectAll = document.getElementById('adminLogSelectAll');
+    if (selectAll) selectAll.checked = true;
+    updateAdminLogSelectedInfo();
+}
+
+// 取消全选
+function adminLogDeselectAll() {
+    const checkboxes = document.querySelectorAll('.admin-log-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = false;
+        adminLogSelectedIds.delete(cb.dataset.id);
+    });
+    const selectAll = document.getElementById('adminLogSelectAll');
+    if (selectAll) selectAll.checked = false;
+    updateAdminLogSelectedInfo();
+}
+
+// 全选切换（表头复选框）
+function adminLogToggleAll() {
+    const checked = document.getElementById('adminLogSelectAll').checked;
+    const checkboxes = document.querySelectorAll('.admin-log-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checked;
+        const id = cb.dataset.id;
+        if (checked) {
+            adminLogSelectedIds.add(id);
+        } else {
+            adminLogSelectedIds.delete(id);
+        }
+    });
+    updateAdminLogSelectedInfo();
+}
+
+// 更新选中数量显示
+function updateAdminLogSelectedInfo() {
+    const el = document.getElementById('adminLogSelectedInfo');
+    if (el) {
+        el.textContent = `已选 ${adminLogSelectedIds.size} 条`;
+    }
+}
+
+// 单个复选框切换
+function adminLogToggleCheckbox(id) {
+    const cb = document.querySelector(`.admin-log-checkbox[data-id="${id}"]`);
+    if (cb) {
+        if (cb.checked) {
+            adminLogSelectedIds.add(id);
+        } else {
+            adminLogSelectedIds.delete(id);
+        }
+        updateAdminLogSelectedInfo();
+    }
+}
     
 // ============================================================
 //  初始化
