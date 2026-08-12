@@ -1,1235 +1,420 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
-    <title>🎰 六合彩 · 开奖系统</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六合彩 · 开发者平台</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: linear-gradient(145deg, #0b1a2e 0%, #1a2f44 100%); min-height: 100vh; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; padding: 1rem; display: flex; justify-content: center; align-items: flex-start; }
-        .container { max-width: 1100px; width: 100%; }
-        .card { background: rgba(255,255,255,0.07); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 2rem; padding: 1.5rem 1.2rem 1.8rem; box-shadow: 0 25px 50px -8px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06); border: 1px solid rgba(255,215,100,0.15); margin-bottom: 1rem; }
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-        .header h1 { font-size: 1.8rem; font-weight: 500; color: #f6e9b0; text-shadow: 0 2px 8px rgba(255,200,50,0.3); display: flex; align-items: center; gap: 0.4rem; }
-        .period-badge { background: rgba(255,215,0,0.12); padding: 0.3rem 1.2rem; border-radius: 60px; color: #ffd700; font-size: 1.1rem; font-weight: 600; border: 1px solid rgba(255,215,0,0.2); }
-        .period-badge #periodDisplay { font-size: 1.5rem; color: #fff; }
-        .lottery-panel { background: rgba(10,20,30,0.5); border-radius: 1.5rem; padding: 1.2rem 0.8rem; border: 1px solid rgba(255,215,0,0.08); }
-        .number-area { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.8rem 1.5rem; min-height: 110px; }
-        .main-numbers { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; }
-        .ball-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
-        .ball { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 6px 16px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.15); text-shadow: 0 2px 4px rgba(0,0,0,0.3); flex-shrink: 0; transition: all 0.2s; }
-        .ball.special { border-color: #ffd700; box-shadow: 0 4px 0 #b8860b, 0 0 24px rgba(255,215,0,0.15); width: 52px; height: 52px; font-size: 1.8rem; }
-        .ball.color-red { background: radial-gradient(circle at 30% 28%, #ff6b6b, #c0392b); }
-        .ball.color-blue { background: radial-gradient(circle at 30% 28%, #6b9fff, #1a4c8b); }
-        .ball.color-green { background: radial-gradient(circle at 30% 28%, #6bda6b, #1a7a2a); }
-        .ball.waiting { background: rgba(40,50,60,0.6); color: #8a9aa8; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5); border: 2px dashed rgba(255,200,100,0.15); box-shadow: none; backdrop-filter: blur(4px); }
-        .ball.reveal { animation: revealPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        @keyframes revealPop { 0% { transform: scale(0.2) rotate(-15deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
-        .ball.rolling { animation: slotRoll 0.12s linear infinite; }
-        @keyframes slotRoll { 0% { transform: scale(0.9) rotate(-8deg); filter: brightness(1.2); } 50% { transform: scale(1.1) rotate(8deg); filter: brightness(1.6); box-shadow: 0 0 40px rgba(255,215,0,0.5); } 100% { transform: scale(0.9) rotate(-8deg); filter: brightness(1.2); } }
-        .ball.stopped { animation: stopPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        @keyframes stopPop { 0% { transform: scale(0.3) rotate(-20deg); opacity: 0.5; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
-        .zodiac-label { font-size: 0.8rem; font-weight: 600; color: #f0e6c0; min-height: 1.2rem; line-height: 1.2rem; background: rgba(0,0,0,0.3); padding: 0 0.5rem; border-radius: 20px; border: 1px solid rgba(255,215,0,0.08); }
-        .zodiac-label.empty { color: #667a88; }
-        .status-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(0,0,0,0.2); border-radius: 40px; border: 1px solid rgba(255,215,0,0.06); }
-        .status-bar .draw-time { color: #b7b9b0; font-size: 0.85rem; }
-        .status-bar .draw-time span { color: #ffd700; font-weight: 600; }
-        .status-bar .countdown { color: #f5c542; font-size: 1rem; font-weight: 600; }
-        .status-bar .countdown .time { color: #ffd700; font-size: 1.2rem; }
-        .status-text { text-align: center; color: #f5c542; font-size: 0.95rem; margin-top: 0.2rem; min-height: 1.6rem; font-weight: 500; }
-        .status-text.idle { color: #8a9aa8; }
-        .data-section { margin-top: 1.2rem; border-top: 1px solid rgba(255,215,0,0.12); padding-top: 1.2rem; }
-        .data-tabs { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.8rem; }
-        .data-tabs .tab-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.1); border-radius: 40px; padding: 0.3rem 1.2rem; color: #b7b9b0; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-        .data-tabs .tab-btn:hover { background: rgba(255,215,0,0.08); }
-        .data-tabs .tab-btn.active { background: rgba(255,215,0,0.15); border-color: #ffd700; color: #ffd700; }
-        .data-panel { display: none; animation: fadeIn 0.3s ease; }
-        .data-panel.active { display: block; }
+        body { background: #0b1a2e; font-family: 'Segoe UI', sans-serif; padding: 2rem; color: #f0e6c0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .container { max-width: 600px; width: 100%; background: rgba(255,255,255,0.07); border-radius: 2rem; padding: 2rem; backdrop-filter: blur(12px); border: 1px solid rgba(255,215,100,0.15); }
+        h1 { color: #f6e9b0; text-align: center; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        h1 span { background: rgba(255,215,0,0.15); padding: 0.05rem 0.8rem; border-radius: 60px; font-size: 1rem; border: 1px solid rgba(255,215,0,0.2); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; color: #b7b9b0; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 0.7rem 1rem; border-radius: 2rem; border: 1px solid #445b6b; background: #1d2f3d; color: #f0e7d0; font-size: 1rem; outline: none; }
+        .form-group input:focus { border-color: #ffd700; }
+        .btn { padding: 0.7rem 2rem; border-radius: 2rem; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: #f8d98c; color: #1f2c1a; }
+        .btn-primary:hover { background: #ffd700; }
+        .btn-secondary { background: #b8cbd9; color: #0e1c2a; }
+        .btn-danger { background: #ff6b6b; color: #fff; }
+        .btn-danger:hover { background: #ff4444; }
+        .btn-sm { padding: 0.3rem 1rem; font-size: 0.85rem; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 1px solid #2a3d4a; padding-bottom: 0.5rem; }
+        .tabs button { padding: 0.4rem 1.2rem; border-radius: 2rem; border: 1px solid #3a4d5a; background: transparent; color: #b7b9b0; cursor: pointer; transition: all 0.2s; }
+        .tabs button:hover { border-color: #ffd700; color: #ffd700; }
+        .tabs button.active { background: rgba(255,215,0,0.15); border-color: #ffd700; color: #ffd700; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
-        .filter-bar { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.2); border-radius: 1.2rem; border: 1px solid rgba(255,215,0,0.05); margin-bottom: 0.6rem; }
-        .filter-bar .filter-label { color: #b7b9b0; font-size: 0.75rem; letter-spacing: 1px; }
-        .filter-bar .filter-group { display: flex; flex-wrap: wrap; gap: 0.15rem; }
-        .filter-bar .filter-btn { padding: 0.08rem 0.6rem; border-radius: 30px; border: 1px solid #3a4d5a; background: transparent; color: #8a9aa8; font-size: 0.7rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-        .filter-bar .filter-btn:hover { border-color: #6a8a9a; color: #d4d9c0; }
-        .filter-bar .filter-btn.active { border-color: #ffd700; background: rgba(255,215,0,0.12); color: #ffd700; }
-        .filter-bar .filter-btn.active-special { border-color: #ff6b6b; background: rgba(255,107,107,0.12); color: #ff6b6b; }
-        .filter-bar .filter-divider { color: #3a4d5a; font-size: 0.6rem; }
-        .year-group { margin-bottom: 0.6rem; }
-        .year-group .year-header { display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.6rem; background: rgba(255,215,0,0.06); border-radius: 30px; border: 1px solid rgba(255,215,0,0.08); cursor: pointer; transition: all 0.2s; margin-bottom: 0.3rem; }
-        .year-group .year-header:hover { background: rgba(255,215,0,0.1); }
-        .year-group .year-header .year-label { color: #ffd700; font-weight: 600; font-size: 0.95rem; }
-        .year-group .year-header .year-count { color: #667a88; font-size: 0.75rem; margin-left: auto; }
-        .year-group .year-header .year-arrow { color: #667a88; transition: transform 0.3s; font-size: 0.7rem; }
-        .year-group .year-header .year-arrow.open { transform: rotate(90deg); }
-        .year-group .year-records { padding-left: 0.3rem; display: none; }
-        .year-group .year-records.open { display: block; }
-        .history-item { background: rgba(0,0,0,0.2); border-radius: 0.6rem; padding: 0.5rem 0.8rem; margin-bottom: 0.25rem; border: 1px solid rgba(255,215,0,0.04); transition: all 0.2s; }
-        .history-item.dimmed { opacity: 0.2; }
-        .history-item .period-time { color: #ffd700; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.15rem; }
-        .history-item .balls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.6rem; margin-bottom: 0.1rem; }
-        .history-item .ball-unit { display: flex; flex-direction: column; align-items: center; gap: 0.05rem; }
-        .history-item .balls-row .h-ball { display: inline-flex; align-items: center; justify-content: center; width: 2.0rem; height: 2.0rem; border-radius: 50%; font-size: 0.85rem; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); transition: all 0.2s; }
-        .history-item .balls-row .h-ball.h-special { width: 2.4rem; height: 2.4rem; font-size: 1rem; border: 2px solid #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.15); }
-        .history-item .balls-row .h-ball.h-red { background: radial-gradient(circle at 30% 28%, #ff6b6b, #c0392b); }
-        .history-item .balls-row .h-ball.h-blue { background: radial-gradient(circle at 30% 28%, #6b9fff, #1a4c8b); }
-        .history-item .balls-row .h-ball.h-green { background: radial-gradient(circle at 30% 28%, #6bda6b, #1a7a2a); }
-        .history-item .balls-row .h-ball.dimmed { opacity: 0.15; filter: grayscale(0.8); }
-        .history-item .balls-row .h-ball.highlight { box-shadow: 0 0 14px rgba(255,215,0,0.35); border-color: #ffd700; }
-        .history-item .ball-unit .z-under-ball { font-size: 0.75rem; color: #b7b9b0; min-width: 2rem; text-align: center; transition: all 0.2s; line-height: 1.2; padding: 0.05rem 0; }
-        .history-item .ball-unit .z-under-ball.dimmed { opacity: 0.15; }
-        .history-item .ball-unit .z-under-ball.z-special { color: #ffd700; font-weight: 700; font-size: 0.85rem; }
-        .history-item .ball-unit .z-under-ball.highlight { color: #ffd700; font-weight: 700; background: rgba(255,215,0,0.08); border-radius: 4px; }
-        .empty-history { color: #667a88; font-style: italic; font-size: 0.85rem; padding: 0.5rem; text-align: center; }
-        .stats-toolbar { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; margin-bottom: 0.6rem; }
-        .stats-toolbar .stats-label { color: #b7b9b0; font-size: 0.75rem; letter-spacing: 1px; }
-        .btn-sm { padding: 0.2rem 0.9rem; font-size: 0.8rem; min-width: auto; border-radius: 60px; font-weight: 600; color: #1b2a3a; cursor: pointer; transition: all 0.15s; border: 1px solid #f9edc7; background: #eddbc0; box-shadow: 0 3px 0 #7a6b50; }
-        .btn-sm:active { transform: translateY(2px); box-shadow: 0 1px 0 #5f4f38; }
-        .btn-sm.active { background: #ffd700; border-color: #ffd700; color: #1a1a1a; box-shadow: 0 3px 0 #b8860b; }
-        .stats-grid-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 0.8rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.2rem 0.3rem; max-height: 320px; overflow-y: auto; padding: 0.15rem 0; }
-        .stats-grid .stat-item { display: flex; align-items: center; gap: 0.1rem; font-size: 0.85rem; color: #c8cdc0; background: rgba(255,255,200,0.03); padding: 0.1rem 0.25rem; border-radius: 10px; border: 1px solid #2a3d4a; border-left: 3px solid #555; transition: all 0.2s; }
-        .stats-grid .stat-item .stat-num { font-weight: 700; color: #f5e7b0; min-width: 20px; text-align: center; font-size: 0.85rem; }
-        .stats-grid .stat-item .stat-freq { background: #2a4050; padding: 0 0.2rem; border-radius: 10px; color: #d4d9c0; font-size: 0.7rem; min-width: 16px; text-align: center; }
-        .stats-grid .stat-item .stat-bar { height: 5px; border-radius: 3px; background: rgba(255,215,0,0.3); transition: width 0.5s; margin-left: 2px; min-width: 15px; }
-        .stats-grid .stat-item.red-dot { border-left-color: #ff6b6b; }
-        .stats-grid .stat-item.blue-dot { border-left-color: #6b9fff; }
-        .stats-grid .stat-item.green-dot { border-left-color: #6bda6b; }
-        .stats-grid .stat-item .stat-bar.red-bar { background: #ff6b6b; }
-        .stats-grid .stat-item .stat-bar.blue-bar { background: #6b9fff; }
-        .stats-grid .stat-item .stat-bar.green-bar { background: #6bda6b; }
-        .zodiac-stats { background: rgba(0,0,0,0.15); border-radius: 1rem; padding: 0.5rem 0.6rem; border: 1px solid rgba(255,215,0,0.05); }
-        .zodiac-stats .zodiac-title { color: #b7b9b0; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 0.3rem; text-align: center; }
-        .zodiac-stats .zodiac-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.15rem 0.3rem; }
-        .zodiac-stats .zodiac-item { display: flex; justify-content: space-between; align-items: center; padding: 0.15rem 0.3rem; border-radius: 12px; font-size: 0.75rem; color: #b7b9b0; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); }
-        .zodiac-stats .zodiac-item .z-name { font-weight: 600; font-size: 0.8rem; }
-        .zodiac-stats .zodiac-item .z-count { background: rgba(0,0,0,0.3); padding: 0 0.3rem; border-radius: 10px; color: #ffd700; font-weight: 600; font-size: 0.7rem; min-width: 20px; text-align: center; }
-        .zodiac-stats .zodiac-item .z-bar-wrap { flex: 1; margin: 0 0.2rem; height: 5px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
-        .zodiac-stats .zodiac-item .z-bar-wrap .z-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #ffd700, #f5a623); transition: width 0.5s; min-width: 10px; }
-        .stats-summary { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; padding: 0.3rem 0.5rem; margin-top: 0.3rem; background: rgba(0,0,0,0.15); border-radius: 0.8rem; font-size: 0.75rem; color: #b7b9b0; grid-column: 1 / -1; }
-        .stats-summary .stat-item-summary { display: flex; align-items: center; gap: 0.2rem; }
-        .stats-summary .stat-item-summary .label { color: #b7b9b0; }
-        .stats-summary .stat-item-summary .value { color: #f5e7b0; font-weight: 600; }
-        .empty-stats { color: #667a88; font-style: italic; font-size: 0.85rem; text-align: center; grid-column: 1 / -1; padding: 0.5rem; }
-        .footer-note { text-align: center; margin-top: 0.8rem; color: #7e8f9a; font-size: 0.7rem; letter-spacing: 0.8px; opacity: 0.6; }
-        .nav-links { display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap; }
-        .nav-links a { color: #667a88; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; padding: 0.2rem 0.8rem; border-radius: 20px; border: 1px solid rgba(255,215,0,0.05); }
-        .nav-links a:hover { color: #f6e9b0; border-color: rgba(255,215,0,0.15); }
-        .lang-switch { display: flex; gap: 0.2rem; align-items: center; }
-        .lang-btn { background: transparent; border: 1px solid #3a4d5a; color: #b7b9b0; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-        .lang-btn:hover { border-color: #ffd700; color: #ffd700; }
-        .lang-btn.active { background: rgba(255,215,0,0.2); border-color: #ffd700; color: #ffd700; }
-        @media (max-width: 768px) { .card { padding: 1rem 0.8rem 1.2rem; border-radius: 1.5rem; } .ball { width: 52px; height: 52px; font-size: 1.6rem; } .ball.special { width: 60px; height: 60px; font-size: 2rem; } .stats-grid-wrapper { grid-template-columns: 1fr; } .filter-bar { flex-direction: column; align-items: stretch; } }
-        @media (max-width: 480px) { body { padding: 0.3rem; } .card { padding: 0.6rem 0.4rem 0.8rem; border-radius: 1rem; } .header h1 { font-size: 1.2rem; } .ball { width: 36px; height: 36px; font-size: 1.1rem; } .ball.special { width: 42px; height: 42px; font-size: 1.3rem; } .period-badge { font-size: 0.8rem; padding: 0.1rem 0.6rem; } .period-badge #periodDisplay { font-size: 1.1rem; } .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+        .key-box { background: #1d2f3d; padding: 0.8rem 1rem; border-radius: 1rem; border: 1px solid #ffd700; word-break: break-all; font-family: monospace; margin: 0.5rem 0; font-size: 0.85rem; color: #f0e7d0; }
+        .status-badge { padding: 0.2rem 0.8rem; border-radius: 2rem; font-size: 0.8rem; display: inline-block; }
+        .status-active { background: #2e8b57; color: #fff; }
+        .status-inactive { background: #8b4513; color: #fff; }
+        .status-pending { background: #b8860b; color: #fff; }
+        .status-revoked { background: #8b0000; color: #fff; }
+        .msg { padding: 0.8rem 1rem; border-radius: 1rem; margin-bottom: 1rem; display: none; }
+        .msg-error { background: rgba(255,0,0,0.2); border: 1px solid #ff6b6b; color: #ff6b6b; display: block; }
+        .msg-success { background: rgba(0,255,0,0.1); border: 1px solid #6bda6b; color: #6bda6b; display: block; }
+        .msg-info { background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; display: block; }
+        .hidden { display: none !important; }
+        .log-item { padding: 0.3rem 0; border-bottom: 1px solid #2a3d4a; font-size: 0.85rem; color: #b7b9b0; display: flex; justify-content: space-between; }
+        .log-item .time { color: #667a88; font-size: 0.75rem; }
+        .divider { border: none; border-top: 1px solid #2a3d4a; margin: 1rem 0; }
+        .user-info { background: rgba(0,0,0,0.2); padding: 0.8rem 1rem; border-radius: 1rem; margin-bottom: 0.5rem; }
+        .user-info p { margin: 0.2rem 0; }
+        .flex-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+        .mt-1 { margin-top: 0.5rem; }
+        .text-muted { color: #667a88; font-size: 0.85rem; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="card">
-        <div class="header">
-            <h1 data-i18n="app_title">🎰 六合彩 · 开奖系统</h1>
-            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                <div class="period-badge"><span data-i18n="period_display">📅 第 000 期</span></div>
-                <div class="lang-switch">
-                    <button class="lang-btn active" data-lang="zh">中</button>
-                    <button class="lang-btn" data-lang="vi">Vi</button>
-                </div>
+    <h1>🎰 六合彩 <span>开发者平台</span></h1>
+
+    <div id="msg" class="msg"></div>
+
+    <!-- Tabs -->
+    <div class="tabs" id="tabNav">
+        <button class="active" data-tab="tab-login">登录</button>
+        <button data-tab="tab-register">注册</button>
+        <button data-tab="tab-dashboard" id="dashboardTab" style="display:none;">我的API</button>
+        <button data-tab="tab-logs" id="logsTab" style="display:none;">调用记录</button>
+        <button id="logoutBtn" style="display:none; border-color:#ff6b6b; color:#ff6b6b;">退出</button>
+    </div>
+
+    <!-- Tab: 登录 -->
+    <div id="tab-login" class="tab-content active">
+        <form id="loginForm">
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="loginEmail" placeholder="your@email.com" required>
             </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="loginPassword" placeholder="至少6位" minlength="6" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">登录</button>
+        </form>
+    </div>
+
+    <!-- Tab: 注册 -->
+    <div id="tab-register" class="tab-content">
+        <form id="registerForm">
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="registerEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="registerPassword" placeholder="至少6位" minlength="6" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">注册并申请API密钥</button>
+            <p class="text-muted text-center mt-1">注册后需管理员审批方可使用</p>
+        </form>
+    </div>
+
+    <!-- Tab: 仪表盘 -->
+    <div id="tab-dashboard" class="tab-content">
+        <div class="user-info" id="userInfo"></div>
+        <hr class="divider">
+        <h3 style="color:#f6e9b0; font-size:1rem;">🔑 API密钥</h3>
+        <div id="apiKeyInfo">
+            <p class="text-muted">暂无API密钥</p>
         </div>
-        <div class="lottery-panel">
-            <div class="number-area">
-                <div class="main-numbers" id="mainNumbers"></div>
-            </div>
-            <div class="status-bar">
-                <div class="draw-time"><span data-i18n="draw_time_label">⏰ 下次开奖:</span> <span id="nextDrawTime"></span></div>
-                <div class="countdown"><span data-i18n="countdown_label">⏱ 倒计时:</span> <span class="time" id="countdownDisplay">--:--:--</span></div>
-            </div>
-            <div class="status-text idle" id="statusText" data-i18n="loading">加载数据...</div>
+        <div class="flex-row mt-1">
+            <button id="applyApiKeyBtn" class="btn btn-primary btn-sm">申请 API Key</button>
+            <button id="revokeApiKeyBtn" class="btn btn-danger btn-sm hidden">吊销</button>
         </div>
-        <div class="data-section">
-            <div class="data-tabs">
-                <button class="tab-btn active" data-tab="history" data-i18n="history">📋 开奖记录</button>
-                <button class="tab-btn" data-tab="stats" data-i18n="stats">📊 号码/生肖频率</button>
-            </div>
-            <div class="data-panel active" id="panel-history">
-                <div class="filter-bar">
-                    <span class="filter-label" data-i18n="position">📍 位置:</span>
-                    <div class="filter-group" id="positionFilter">
-                        <button class="filter-btn active" data-pos="all" data-i18n="all">全部</button>
-                        <button class="filter-btn" data-pos="0" data-i18n="position_1">第1位</button>
-                        <button class="filter-btn" data-pos="1" data-i18n="position_2">第2位</button>
-                        <button class="filter-btn" data-pos="2" data-i18n="position_3">第3位</button>
-                        <button class="filter-btn" data-pos="3" data-i18n="position_4">第4位</button>
-                        <button class="filter-btn" data-pos="4" data-i18n="position_5">第5位</button>
-                        <button class="filter-btn" data-pos="5" data-i18n="position_6">第6位</button>
-                        <button class="filter-btn active-special" data-pos="6" data-i18n="position_special">⭐特别号</button>
-                    </div>
-                    <span class="filter-divider">|</span>
-                    <span class="filter-label" data-i18n="zodiac">🐾 生肖:</span>
-                    <div class="filter-group" id="zodiacFilter">
-                        <button class="filter-btn active" data-zodiac="all" data-i18n="zodiac_all">全部</button>
-                        <button class="filter-btn" data-zodiac="蛇" data-i18n="zodiac_snake">蛇</button>
-                        <button class="filter-btn" data-zodiac="龙" data-i18n="zodiac_dragon">龙</button>
-                        <button class="filter-btn" data-zodiac="猫" data-i18n="zodiac_cat">猫</button>
-                        <button class="filter-btn" data-zodiac="虎" data-i18n="zodiac_tiger">虎</button>
-                        <button class="filter-btn" data-zodiac="牛" data-i18n="zodiac_ox">牛</button>
-                        <button class="filter-btn" data-zodiac="鼠" data-i18n="zodiac_rat">鼠</button>
-                        <button class="filter-btn" data-zodiac="猪" data-i18n="zodiac_pig">猪</button>
-                        <button class="filter-btn" data-zodiac="狗" data-i18n="zodiac_dog">狗</button>
-                        <button class="filter-btn" data-zodiac="鸡" data-i18n="zodiac_rooster">鸡</button>
-                        <button class="filter-btn" data-zodiac="猴" data-i18n="zodiac_monkey">猴</button>
-                        <button class="filter-btn" data-zodiac="羊" data-i18n="zodiac_goat">羊</button>
-                        <button class="filter-btn" data-zodiac="马" data-i18n="zodiac_horse">马</button>
-                    </div>
-                </div>
-                <div id="historyList"><span class="empty-history" data-i18n="history_empty">暂无记录</span></div>
-            </div>
-            <div class="data-panel" id="panel-stats">
-                <div class="stats-toolbar">
-                    <span class="stats-label" data-i18n="stats_time_range">📅 时间范围:</span>
-                    <button class="btn-sm active" data-range="all" data-i18n="stats_all">全部</button>
-                    <button class="btn-sm" data-range="week" data-i18n="stats_week">本周</button>
-                    <button class="btn-sm" data-range="month" data-i18n="stats_month">本月</button>
-                    <button class="btn-sm" data-range="year" data-i18n="stats_year">本年</button>
-                    <span style="color:#667a88;font-size:0.7rem;margin-left:auto;" id="statsInfo" data-i18n="stats_periods">共 0 期</span>
-                </div>
-                <div class="stats-grid-wrapper">
-                    <div class="stats-grid" id="statsGrid"><span class="empty-stats" data-i18n="stats_empty">暂无数据</span></div>
-                    <div class="zodiac-stats" id="zodiacStats">
-                        <div class="zodiac-title" data-i18n="zodiac_stats_title">🐾 生肖频率</div>
-                        <div class="zodiac-grid" id="zodiacStatsGrid"><span class="empty-stats" data-i18n="stats_empty">暂无数据</span></div>
-                    </div>
-                </div>
-                <div class="stats-summary" id="statsSummary">
-                    <span class="stat-item-summary"><span class="label" data-i18n="stats_total">📊 总开奖:</span> <span class="value" id="totalDraws">0</span> <span class="label" data-i18n="stats_total_suffix">期</span></span>
-                    <span class="stat-item-summary"><span class="label" data-i18n="stats_covered">🎯 号码覆盖:</span> <span class="value" id="coveredNums">0</span> <span class="label" data-i18n="stats_covered_suffix">/49</span></span>
-                    <span class="stat-item-summary"><span class="label" data-i18n="stats_hot">🔥 最热号码:</span> <span class="value" id="hottestNum">-</span> <span class="label">(</span><span class="value" id="hottestFreq">0</span><span class="label" data-i18n="stats_hot_suffix">次</span>)</span>
-                    <span class="stat-item-summary"><span class="label" data-i18n="stats_cold">❄️ 最冷号码:</span> <span class="value" id="coldestNum">-</span> <span class="label">(</span><span class="value" id="coldestFreq">0</span><span class="label" data-i18n="stats_cold_suffix">次</span>)</span>
-                </div>
-            </div>
-        </div>
-        <div class="nav-links">
-            <a href="/admin.html" data-i18n="nav_admin">🛠️ 管理后台</a>
-            <a href="/api-docs.html" data-i18n="nav_api">📖 API文档</a>
-        </div>
-        <div class="footer-note" data-i18n="footer">🎯 7个号码 · 数据来自后端API · 实时更新</div>
+        <hr class="divider">
+        <p class="text-muted" style="font-size:0.8rem;">💡 API Key 需管理员激活后才能使用</p>
+    </div>
+
+    <!-- Tab: 调用记录 -->
+    <div id="tab-logs" class="tab-content">
+        <div id="logsList"><p class="text-muted">暂无调用记录</p></div>
     </div>
 </div>
 
 <script>
 // ============================================================
-//  I18n - 完整国际化
+//  状态
 // ============================================================
-const I18n = {
-    locale: 'zh',
-    data: {},
+const API_BASE = window.location.origin;
+let token = localStorage.getItem('jwt_token');
+let currentUser = null;
+let currentApiKey = null;
 
-    load() {
-        this.data.zh = {
-            "app_title": "🎰 六合彩 · 开奖系统",
-            "period_display": "📅 第 {period} 期",
-            "period": "期",
-            "next_draw_time": "每天 {time}",
-            "countdown_label": "⏱ 倒计时:",
-            "loading": "加载数据...",
-            "waiting_draw": "等待开奖...",
-            "current_draw": "📊 第 {period} 期已开奖",
-            "connecting_server": "连接服务器...",
-            "special": "特别号",
-            "position": "📍 位置:",
-            "all": "全部",
-            "position_1": "第1位",
-            "position_2": "第2位",
-            "position_3": "第3位",
-            "position_4": "第4位",
-            "position_5": "第5位",
-            "position_6": "第6位",
-            "position_special": "⭐特别号",
-            "zodiac": "🐾 生肖:",
-            "zodiac_all": "全部",
-            "zodiac_snake": "蛇",
-            "zodiac_dragon": "龙",
-            "zodiac_cat": "猫",
-            "zodiac_tiger": "虎",
-            "zodiac_ox": "牛",
-            "zodiac_rat": "鼠",
-            "zodiac_pig": "猪",
-            "zodiac_dog": "狗",
-            "zodiac_rooster": "鸡",
-            "zodiac_monkey": "猴",
-            "zodiac_goat": "羊",
-            "zodiac_horse": "马",
-            "history": "📋 开奖记录",
-            "history_empty": "暂无记录",
-            "history_time": "开奖时间",
-            "history_period": "第 {period} 期",
-            "stats": "📊 号码/生肖频率",
-            "stats_time_range": "📅 时间范围:",
-            "stats_all": "全部",
-            "stats_week": "本周",
-            "stats_month": "本月",
-            "stats_year": "本年",
-            "stats_total": "📊 总开奖:",
-            "stats_total_suffix": "期",
-            "stats_covered": "🎯 号码覆盖:",
-            "stats_covered_suffix": "/49",
-            "stats_hot": "🔥 最热号码:",
-            "stats_hot_suffix": "次",
-            "stats_cold": "❄️ 最冷号码:",
-            "stats_cold_suffix": "次",
-            "stats_empty": "暂无数据",
-            "stats_periods": "共 {count} 期",
-            "zodiac_stats_title": "🐾 生肖频率",
-            "nav_admin": "🛠️ 管理后台",
-            "nav_api": "📖 API文档",
-            "footer": "🎯 7个号码 · 数据来自后端API · 实时更新",
-            "year": "年",
-            "unknown_year": "未知",
-            "draw_rolling": "🎰 开奖中...",
-            "draw_rolling_main": "🎰 第 {idx}/6 个主号滚动中...",
-            "draw_rolling_special": "⭐ 特别号滚动中...",
-            "draw_reveal_main": "✅ 第 {idx}/6 个主号揭晓",
-            "draw_reveal_special": "⭐ 特别号揭晓！",
-            "draw_done": "🎉 第 {period} 期开奖完成！",
-            "draw_time_label": "⏰ 下次开奖:",
-            "draw_start_text": "开奖开始",
-            "period_prefix": "第",
-            "period_suffix": "期"
-        };
-        this.data.vi = {
-            "app_title": "🎰 Xổ số · Hệ thống quay số",
-            "period_display": "📅 Kỳ {period}",
-            "period": "kỳ",
-            "next_draw_time": "Hàng ngày lúc {time}",
-            "countdown_label": "⏱ Đếm ngược:",
-            "loading": "Đang tải dữ liệu...",
-            "waiting_draw": "Chờ quay số...",
-            "current_draw": "📊 Đã quay kỳ {period}",
-            "connecting_server": "Đang kết nối máy chủ...",
-            "special": "Số đặc biệt",
-            "position": "📍 Vị trí:",
-            "all": "Tất cả",
-            "position_1": "Vị trí 1",
-            "position_2": "Vị trí 2",
-            "position_3": "Vị trí 3",
-            "position_4": "Vị trí 4",
-            "position_5": "Vị trí 5",
-            "position_6": "Vị trí 6",
-            "position_special": "⭐Số đặc biệt",
-            "zodiac": "🐾 Con giáp:",
-            "zodiac_all": "Tất cả",
-            "zodiac_snake": "TỴ",
-            "zodiac_dragon": "THÌN",
-            "zodiac_cat": "MÃO",
-            "zodiac_tiger": "DẦN",
-            "zodiac_ox": "SỬU",
-            "zodiac_rat": "TÝ",
-            "zodiac_pig": "HỢI",
-            "zodiac_dog": "TUẤT",
-            "zodiac_rooster": "DẬU",
-            "zodiac_monkey": "THÂN",
-            "zodiac_goat": "MÙI",
-            "zodiac_horse": "NGỌ",
-            "history": "📋 Lịch sử quay",
-            "history_empty": "Chưa có dữ liệu",
-            "history_time": "Thời gian quay",
-            "history_period": "Kỳ {period}",
-            "stats": "📊 Tần suất số/Con giáp",
-            "stats_time_range": "📅 Thời gian:",
-            "stats_all": "Tất cả",
-            "stats_week": "Tuần này",
-            "stats_month": "Tháng này",
-            "stats_year": "Năm nay",
-            "stats_total": "📊 Tổng số kỳ:",
-            "stats_total_suffix": "kỳ",
-            "stats_covered": "🎯 Số đã xuất hiện:",
-            "stats_covered_suffix": "/49",
-            "stats_hot": "🔥 Số nóng nhất:",
-            "stats_hot_suffix": "lần",
-            "stats_cold": "❄️ Số lạnh nhất:",
-            "stats_cold_suffix": "lần",
-            "stats_empty": "Chưa có dữ liệu",
-            "stats_periods": "Tổng {count} kỳ",
-            "zodiac_stats_title": "🐾 Tần suất con giáp",
-            "nav_admin": "🛠️ Quản trị",
-            "nav_api": "📖 Tài liệu API",
-            "footer": "🎯 7 số · Dữ liệu từ API · Cập nhật thời gian thực",
-            "year": "năm",
-            "unknown_year": "Không rõ",
-            "draw_rolling": "🎰 Đang quay...",
-            "draw_rolling_main": "🎰 Đang quay số thứ {idx}/6...",
-            "draw_rolling_special": "⭐ Đang quay số đặc biệt...",
-            "draw_reveal_main": "✅ Đã quay số thứ {idx}/6",
-            "draw_reveal_special": "⭐ Đã quay số đặc biệt!",
-            "draw_done": "🎉 Hoàn thành kỳ {period} quay số!",
-            "draw_time_label": "⏰ Quay tiếp theo:",
-            "draw_start_text": "Bắt đầu quay",
-            "period_prefix": "Kỳ",
-            "period_suffix": ""
-        };
-    },
+// ============================================================
+//  DOM 引用
+// ============================================================
+const msgEl = document.getElementById('msg');
+const tabs = document.querySelectorAll('#tabNav button[data-tab]');
+const dashboardTab = document.getElementById('dashboardTab');
+const logsTab = document.getElementById('logsTab');
+const logoutBtn = document.getElementById('logoutBtn');
 
-    t(key, params) {
-        const dict = this.data[this.locale] || {};
-        let text = dict[key] || key;
-        if (params) {
-            for (const k in params) {
-                text = text.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
-            }
-        }
-        return text;
-    },
+// ============================================================
+//  工具函数
+// ============================================================
+function showMsg(message, type = 'info') {
+    msgEl.textContent = message;
+    msgEl.className = 'msg msg-' + type;
+}
 
-    updateAll() {
-        const self = this;
-        // 更新所有 data-i18n 元素
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            const text = self.t(key);
-            if (text) {
-                el.textContent = text;
-            }
+function hideMsg() {
+    msgEl.className = 'msg';
+}
+
+function apiRequest(url, options = {}) {
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+    if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+    }
+    return fetch(API_BASE + url, { ...options, headers }).then(res => res.json());
+}
+
+function switchTab(tabId) {
+    tabs.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.toggle('active', el.id === tabId);
+    });
+}
+
+function getStatusBadge(status) {
+    const map = {
+        'active': '<span class="status-badge status-active">已激活</span>',
+        'inactive': '<span class="status-badge status-inactive">未激活</span>',
+        'pending': '<span class="status-badge status-pending">待审批</span>',
+        'revoked': '<span class="status-badge status-revoked">已吊销</span>'
+    };
+    return map[status] || status;
+}
+
+// ============================================================
+//  登录 / 注册
+// ============================================================
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    try {
+        const data = await apiRequest('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
         });
-        // 更新期数显示
-        this.updatePeriod();
-        // 更新状态栏
-        this.updateStatus();
-        // 更新下次开奖时间
-        this.updateNextDrawTime();
-    },
-
-    updatePeriod() {
-        const el = document.querySelector('[data-i18n="period_display"]');
-        if (el) {
-            const p = window._period || 0;
-            el.textContent = this.t('period_display', { period: String(p).padStart(3, '0') });
-        }
-    },
-
-    updateStatus() {
-        const el = document.getElementById('statusText');
-        if (!el) return;
-        const p = window._period || 0;
-        const main = window._currentMain || [];
-        if (main && main.length > 0) {
-            el.textContent = this.t('current_draw', { period: String(p).padStart(3, '0') });
-            el.className = 'status-text';
+        if (data.success) {
+            token = data.token;
+            currentUser = data.user;
+            localStorage.setItem('jwt_token', token);
+            showMsg('✅ 登录成功！', 'success');
+            afterLogin();
         } else {
-            el.textContent = this.t('waiting_draw');
-            el.className = 'status-text idle';
+            showMsg('❌ ' + (data.message || '登录失败'), 'error');
         }
-    },
-
-    updateNextDrawTime() {
-        const el = document.getElementById('nextDrawTime');
-        if (el) {
-            const time = window._drawTime || '20:30';
-            el.textContent = this.t('next_draw_time', { time: time });
-        }
-    },
-
-    setLocale(locale) {
-        if (this.data[locale]) {
-            this.locale = locale;
-            this.updateAll();
-            return true;
-        }
-        return false;
-    },
-
-    init(locale) {
-        this.load();
-        if (locale && this.data[locale]) {
-            this.locale = locale;
-        } else {
-            this.locale = 'zh';
-        }
-        // 设置默认值
-        window._period = 0;
-        window._currentMain = [];
-        window._drawTime = '20:30';
-        this.updateAll();
+    } catch (err) {
+        showMsg('❌ 网络错误，请重试', 'error');
     }
-};
+});
 
-// ============================================================
-//  主逻辑
-// ============================================================
-const mainContainer = document.getElementById('mainNumbers');
-const statusText = document.getElementById('statusText');
-const historyList = document.getElementById('historyList');
-const statsGrid = document.getElementById('statsGrid');
-const zodiacStatsGrid = document.getElementById('zodiacStatsGrid');
-const totalDrawsEl = document.getElementById('totalDraws');
-const coveredNumsEl = document.getElementById('coveredNums');
-const hottestNumEl = document.getElementById('hottestNum');
-const hottestFreqEl = document.getElementById('hottestFreq');
-const coldestNumEl = document.getElementById('coldestNum');
-const coldestFreqEl = document.getElementById('coldestFreq');
-const countdownDisplay = document.getElementById('countdownDisplay');
-
-let history = [];
-let frequency = {};
-let activePositions = ['all'];
-let activeZodiacs = ['all'];
-let currentRange = 'all';
-let expandedYears = new Set();
-let drawTime = '20:30';
-let countdownInterval = null;
-let isAnimating = false;
-
-const API_BASE = 'https://api.vilotto.vip';
-
-const colorMap = {
-    red: [1,2,7,8,12,13,18,19,23,24,29,30,34,35,40,45,46],
-    blue: [3,4,9,10,14,15,20,25,26,31,36,37,41,42,47,48],
-    green: [5,6,11,16,17,21,22,27,28,32,33,38,39,43,44,49]
-};
-
-function getColor(num) {
-    if (colorMap.red.includes(num)) return 'red';
-    if (colorMap.blue.includes(num)) return 'blue';
-    return 'green';
-}
-
-const zodiacMap = {
-    1:'snake',13:'snake',25:'snake',37:'snake',49:'snake',
-    2:'dragon',14:'dragon',26:'dragon',38:'dragon',
-    3:'cat',15:'cat',27:'cat',39:'cat',
-    4:'tiger',16:'tiger',28:'tiger',40:'tiger',
-    5:'ox',17:'ox',29:'ox',41:'ox',
-    6:'rat',18:'rat',30:'rat',42:'rat',
-    7:'pig',19:'pig',31:'pig',43:'pig',
-    8:'dog',20:'dog',32:'dog',44:'dog',
-    9:'rooster',21:'rooster',33:'rooster',45:'rooster',
-    10:'monkey',22:'monkey',34:'monkey',46:'monkey',
-    11:'goat',23:'goat',35:'goat',47:'goat',
-    12:'horse',24:'horse',36:'horse',48:'horse'
-};
-
-function getZodiacKey(num) { return zodiacMap[num] || null; }
-function getZodiacDisplay(num) {
-    const key = getZodiacKey(num);
-    if (!key) return '-';
-    return I18n.t('zodiac_' + key);
-}
-
-function createWaitingBall(index) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'ball-wrapper';
-    const isSpecial = (index === 6);
-    const ball = document.createElement('div');
-    ball.className = `ball waiting${isSpecial ? ' special' : ''}`;
-    ball.textContent = '?';
-    wrapper.appendChild(ball);
-    const label = document.createElement('div');
-    label.className = `zodiac-label empty${isSpecial ? ' special' : ''}`;
-    label.textContent = isSpecial ? I18n.t('special') : '-';
-    wrapper.appendChild(label);
-    return wrapper;
-}
-
-function createStaticBall(num, index) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'ball-wrapper';
-    const isSpecial = (index === 6);
-    const ball = document.createElement('div');
-    const color = getColor(num);
-    ball.className = `ball color-${color}${isSpecial ? ' special' : ''}`;
-    ball.textContent = num;
-    wrapper.appendChild(ball);
-    const label = document.createElement('div');
-    label.className = `zodiac-label${isSpecial ? ' special' : ''}`;
-    label.textContent = isSpecial ? I18n.t('special') : getZodiacDisplay(num);
-    wrapper.appendChild(label);
-    return wrapper;
-}
-
-function setWaitingState() {
-    mainContainer.innerHTML = '';
-    for (let i = 0; i < 7; i++) {
-        mainContainer.appendChild(createWaitingBall(i));
-    }
-}
-
-function renderCurrentDraw(main, animate = false) {
-    mainContainer.innerHTML = '';
-    if (!main || main.length === 0) {
-        setWaitingState();
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    if (password.length < 6) {
+        showMsg('❌ 密码至少6位', 'error');
         return;
     }
-    if (animate) {
-        for (let i = 0; i < 7; i++) {
-            mainContainer.appendChild(createWaitingBall(i));
-        }
-        const wrappers = mainContainer.querySelectorAll('.ball-wrapper');
-        main.forEach((num, idx) => {
-            setTimeout(() => {
-                const wrapper = wrappers[idx];
-                const newWrapper = createStaticBall(num, idx);
-                wrapper.parentNode.replaceChild(newWrapper, wrapper);
-                const ball = newWrapper.querySelector('.ball');
-                if (ball) {
-                    ball.classList.add('reveal');
-                    setTimeout(() => ball.classList.remove('reveal'), 600);
-                }
-            }, idx * 400);
+    try {
+        const data = await apiRequest('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
         });
+        if (data.success) {
+            showMsg('✅ ' + data.message, 'success');
+            document.getElementById('registerForm').reset();
+            // 自动切换到登录
+            switchTab('tab-login');
+        } else {
+            showMsg('❌ ' + (data.message || '注册失败'), 'error');
+        }
+    } catch (err) {
+        showMsg('❌ 网络错误，请重试', 'error');
+    }
+});
+
+// ============================================================
+//  登录后状态
+// ============================================================
+function afterLogin() {
+    dashboardTab.style.display = 'inline-block';
+    logsTab.style.display = 'inline-block';
+    logoutBtn.style.display = 'inline-block';
+    // 隐藏登录和注册tab
+    document.querySelector('#tabNav button[data-tab="tab-login"]').style.display = 'none';
+    document.querySelector('#tabNav button[data-tab="tab-register"]').style.display = 'none';
+    switchTab('tab-dashboard');
+    loadDashboard();
+}
+
+function beforeLogout() {
+    dashboardTab.style.display = 'none';
+    logsTab.style.display = 'none';
+    logoutBtn.style.display = 'none';
+    document.querySelector('#tabNav button[data-tab="tab-login"]').style.display = 'inline-block';
+    document.querySelector('#tabNav button[data-tab="tab-register"]').style.display = 'inline-block';
+    switchTab('tab-login');
+}
+
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('jwt_token');
+    token = null;
+    currentUser = null;
+    currentApiKey = null;
+    beforeLogout();
+    showMsg('已退出', 'info');
+});
+
+// ============================================================
+//  仪表盘
+// ============================================================
+async function loadDashboard() {
+    try {
+        const data = await apiRequest('/api/auth/me');
+        if (data.success) {
+            currentUser = data.user;
+            currentApiKey = data.api_key;
+            renderUserInfo(data.user);
+            renderApiKey(data.api_key);
+        } else {
+            showMsg('❌ ' + (data.message || '获取用户信息失败'), 'error');
+        }
+    } catch (err) {
+        showMsg('❌ 网络错误', 'error');
+    }
+}
+
+function renderUserInfo(user) {
+    const statusMap = {
+        'pending': '<span class="status-badge status-pending">待审批</span>',
+        'active': '<span class="status-badge status-active">已激活</span>',
+        'banned': '<span class="status-badge status-revoked">已禁用</span>'
+    };
+    document.getElementById('userInfo').innerHTML = `
+        <p><strong>📧 邮箱：</strong>${user.email}</p>
+        <p><strong>📊 状态：</strong>${statusMap[user.status] || user.status}</p>
+        <p><strong>📅 注册时间：</strong>${user.createdAt ? new Date(user.createdAt).toLocaleString() : '-'}</p>
+    `;
+}
+
+function renderApiKey(apiKey) {
+    const container = document.getElementById('apiKeyInfo');
+    const applyBtn = document.getElementById('applyApiKeyBtn');
+    const revokeBtn = document.getElementById('revokeApiKeyBtn');
+
+    if (apiKey) {
+        // ★ 处理过期时间显示 ★
+        let expiresHtml = '';
+        if (apiKey.expires_at) {
+            const expiresAt = new Date(apiKey.expires_at);
+            const now = new Date();
+            const isExpired = expiresAt < now;
+            const color = isExpired ? '#ff6b6b' : '#6bda6b';
+            expiresHtml = `<p class="text-muted" style="font-size:0.8rem;">
+                到期时间：<span style="color:${color};font-weight:600;">
+                    ${expiresAt.toLocaleString()}
+                    ${isExpired ? ' ⚠️ 已过期' : ''}
+                </span>
+            </p>`;
+        } else {
+            expiresHtml = `<p class="text-muted" style="font-size:0.8rem;">到期时间：<span style="color:#ffd700;">永久有效</span></p>`;
+        }
+
+        container.innerHTML = `
+            <div class="key-box">${apiKey.api_key}</div>
+            <p>状态：${getStatusBadge(apiKey.status)}</p>
+            ${expiresHtml}
+            ${apiKey.last_used_at ? `<p class="text-muted" style="font-size:0.8rem;">最后使用：${new Date(apiKey.last_used_at).toLocaleString()}</p>` : ''}
+        `;
+        applyBtn.classList.add('hidden');
+        if (apiKey.status === 'active') {
+            revokeBtn.classList.remove('hidden');
+        } else {
+            revokeBtn.classList.add('hidden');
+        }
     } else {
-        main.forEach((num, idx) => {
-            mainContainer.appendChild(createStaticBall(num, idx));
-        });
+        container.innerHTML = '<p class="text-muted">暂无API密钥，点击下方申请</p>';
+        applyBtn.classList.remove('hidden');
+        revokeBtn.classList.add('hidden');
     }
 }
 
-async function startRollingAnimation(main) {
-    return new Promise((resolve) => {
-        // ★ 检测苹果设备
-        const isApple = /iPhone|iPad|iPod/.test(navigator.userAgent);
-        const PER_BALL_MS = 6000;
-        
-        mainContainer.innerHTML = '';
-        for (let i = 0; i < 7; i++) {
-            mainContainer.appendChild(createWaitingBall(i));
-        }
-
-        statusText.textContent = I18n.t('draw_rolling');
-        statusText.className = 'status-text';
-
-        const wrappers = mainContainer.querySelectorAll('.ball-wrapper');
-
-        main.forEach((finalNum, idx) => {
-            setTimeout(() => {
-                const wrapper = wrappers[idx];
-                const ball = wrapper.querySelector('.ball');
-                const label = wrapper.querySelector('.zodiac-label');
-                const isSpecial = (idx === 6);
-
-                if (isSpecial) {
-                    statusText.textContent = I18n.t('draw_rolling_special');
-                } else {
-                    statusText.textContent = I18n.t('draw_rolling_main', { idx: idx + 1 });
-                }
-
-                let rollInterval = setInterval(() => {
-                    const randomNum = Math.floor(Math.random() * 49) + 1;
-                    ball.textContent = randomNum;
-                    
-                    // ★ 苹果设备不加 CSS 动画类，其他设备加
-                    if (isApple) {
-                        ball.className = `ball${isSpecial ? ' special' : ''}`;
-                        // 快速闪烁模拟滚动
-                        ball.style.opacity = Math.random() > 0.5 ? '0.5' : '1';
-                    } else {
-                        ball.className = `ball rolling${isSpecial ? ' special' : ''}`;
-                    }
-                    
-                    label.textContent = '?';
-                    label.className = `zodiac-label empty${isSpecial ? ' special' : ''}`;
-                }, isApple ? 80 : 50);  // 苹果设备切换稍慢一点
-
-                setTimeout(() => {
-                    clearInterval(rollInterval);
-                    
-                    // ★ 恢复透明度
-                    ball.style.opacity = '1';
-
-                    const color = getColor(finalNum);
-                    ball.className = `ball color-${color}${isSpecial ? ' special' : ''}`;
-                    ball.textContent = finalNum;
-
-                    const displayName = isSpecial ? I18n.t('special') : getZodiacDisplay(finalNum);
-                    label.className = `zodiac-label${isSpecial ? ' special' : ''}`;
-                    label.textContent = displayName;
-
-                    ball.classList.add('stopped');
-                    setTimeout(() => {
-                        ball.classList.remove('stopped');
-                    }, 300);
-
-                    if (isSpecial) {
-                        statusText.textContent = I18n.t('draw_reveal_special');
-                        setTimeout(() => {
-                            I18n.updateAll();
-                            statusText.textContent = I18n.t('draw_done', { period: String(window._period).padStart(3, '0') });
-                            statusText.className = 'status-text';
-                            loadHistory();
-                            loadFrequency();
-                        }, 500);
-                    } else {
-                        statusText.textContent = I18n.t('draw_reveal_main', { idx: idx + 1 });
-                    }
-                }, PER_BALL_MS);
-
-                // ★ 苹果设备不用高亮闪烁，直接忽略
-                if (!isApple) {
-                    const highlightInterval = setInterval(() => {
-                        ball.classList.toggle('reveal');
-                    }, 200);
-                    setTimeout(() => {
-                        clearInterval(highlightInterval);
-                        ball.classList.remove('reveal');
-                    }, PER_BALL_MS);
-                }
-
-            }, idx * PER_BALL_MS);
-        });
-
-        setTimeout(() => {
-            resolve();
-        }, 7 * PER_BALL_MS + 500);
-    });
-}
-
-function getNextDrawTime() {
-    const now = new Date();
-    const [hour, minute] = drawTime.split(':').map(Number);
-    const vnOffset = 7;
-    const localOffset = -now.getTimezoneOffset() / 60;
-    const offsetDiff = vnOffset - localOffset;
-    const next = new Date(now);
-    next.setHours(hour - offsetDiff, minute, 0, 0);
-    if (next < now) {
-        next.setDate(next.getDate() + 1);
-    }
-    return next;
-}
-
-function updateCountdown() {
-    const next = getNextDrawTime();
-    const now = new Date();
-    const diff = Math.max(0, Math.floor((next - now) / 1000));
-    if (diff <= 0) {
-        countdownDisplay.textContent = I18n.t('draw_start_text');
-        return;
-    }
-    const hours = Math.floor(diff / 3600);
-    const minutes = Math.floor((diff % 3600) / 60);
-    const seconds = diff % 60;
-    countdownDisplay.textContent =
-        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-}
-
-
-async function loadConfig() {
+document.getElementById('applyApiKeyBtn').addEventListener('click', async () => {
+    hideMsg();
     try {
-        const response = await fetch(`${API_BASE}/api/config/draw-time`);
-        if (!response.ok) {
-            window._drawTime = '20:30';
-            I18n.updateNextDrawTime();
-            return;
-        }
-        const result = await response.json();
-        if (result.success && result.data) {
-            window._drawTime = result.data.drawTime || '20:30';
-            I18n.updateNextDrawTime();
-        }
-    } catch (e) {
-        window._drawTime = '20:30';
-        I18n.updateNextDrawTime();
-    }
-}
-
-async function loadCurrentDraw() {
-    try {
-        const response = await fetch('${API_BASE}/api/draw/current');
-        const result = await response.json();
-        if (result.success && result.data) {
-            const data = result.data;
-            window._currentMain = data.numbers || [];
-            window._period = data.period || 0;
-            renderCurrentDraw(window._currentMain);
-            I18n.updateAll();
-            if (window._currentMain.length > 0) {
-                statusText.textContent = I18n.t('current_draw', { period: String(window._period).padStart(3, '0') });
-                statusText.className = 'status-text';
-            } else {
-                setWaitingState();
-                statusText.textContent = I18n.t('waiting_draw');
-                statusText.className = 'status-text idle';
-            }
-            return true;
+        const data = await apiRequest('/api/auth/api-key', { method: 'POST' });
+        if (data.success) {
+            showMsg('✅ ' + data.message, 'success');
+            loadDashboard();
         } else {
-            I18n.updateAll();
-            setWaitingState();
-            statusText.textContent = I18n.t('waiting_draw');
-            statusText.className = 'status-text idle';
-            return false;
+            showMsg('❌ ' + (data.message || '申请失败'), 'error');
         }
-    } catch (e) {
-        console.error('加载开奖失败:', e);
-        I18n.updateAll();
-        setWaitingState();
-        statusText.textContent = I18n.t('connecting_server');
-        statusText.className = 'status-text idle';
-        return false;
+    } catch (err) {
+        showMsg('❌ 网络错误', 'error');
     }
-}
+});
 
-async function loadHistory() {
+document.getElementById('revokeApiKeyBtn').addEventListener('click', async () => {
+    if (!confirm('确定要吊销当前 API Key 吗？此操作不可撤销！')) return;
+    hideMsg();
     try {
-        const response = await fetch('${API_BASE}/api/draw/history?limit=50');
-        const result = await response.json();
-        if (result.success && result.data) {
-            history = result.data.records || [];
-            renderHistory();
+        const data = await apiRequest('/api/auth/api-key', { method: 'DELETE' });
+        if (data.success) {
+            showMsg('✅ ' + data.message, 'success');
+            loadDashboard();
+        } else {
+            showMsg('❌ ' + (data.message || '吊销失败'), 'error');
         }
-    } catch (e) {
-        console.error('加载历史失败:', e);
+    } catch (err) {
+        showMsg('❌ 网络错误', 'error');
     }
-}
+});
 
-async function loadFrequency() {
+// ============================================================
+//  调用记录
+// ============================================================
+async function loadLogs() {
     try {
-        const response = await fetch('${API_BASE}/api/draw/frequency');
-        const result = await response.json();
-        if (result.success && result.data) {
-            const freq = {};
-            result.data.numbers.forEach(item => {
-                freq[item.number] = item.count;
-            });
-            frequency = freq;
-            renderStats();
+        const data = await apiRequest('/api/auth/logs');
+        const container = document.getElementById('logsList');
+        if (data.success && data.logs && data.logs.length > 0) {
+            container.innerHTML = data.logs.map(log => `
+                <div class="log-item">
+                    <span>${log.endpoint || '/'}</span>
+                    <span class="time">${new Date(log.created_at).toLocaleString()}</span>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = '<p class="text-muted">暂无调用记录</p>';
         }
-    } catch (e) {
-        console.error('加载频率失败:', e);
+    } catch (err) {
+        document.getElementById('logsList').innerHTML = '<p class="text-muted">加载失败</p>';
     }
 }
 
-function renderHistory() {
-    historyList.innerHTML = '';
-    if (history.length === 0) {
-        historyList.innerHTML = `<span class="empty-history">${I18n.t('history_empty')}</span>`;
-        return;
-    }
-    const years = {};
-    history.forEach(item => {
-        const year = item.drawTime ? new Date(item.drawTime).getFullYear() : I18n.t('unknown_year');
-        const key = String(year);
-        if (!years[key]) years[key] = [];
-        years[key].push(item);
-    });
-    const sortedYears = Object.keys(years).sort((a, b) => {
-        if (a === I18n.t('unknown_year')) return 1;
-        if (b === I18n.t('unknown_year')) return -1;
-        return parseInt(b) - parseInt(a);
-    });
-    sortedYears.forEach(year => {
-        const yearGroup = document.createElement('div');
-        yearGroup.className = 'year-group';
-        const header = document.createElement('div');
-        header.className = 'year-header';
-        const isOpen = expandedYears.has(year);
-        header.innerHTML = `
-            <span class="year-label">📅 ${year}</span>
-            <span class="year-count">${years[year].length} ${I18n.t('period')}</span>
-            <span class="year-arrow ${isOpen ? 'open' : ''}">▶</span>
-        `;
-        header.addEventListener('click', function() {
-            if (expandedYears.has(year)) {
-                expandedYears.delete(year);
-            } else {
-                expandedYears.add(year);
-            }
-            renderHistory();
-        });
-        yearGroup.appendChild(header);
-        const records = document.createElement('div');
-        records.className = `year-records${isOpen ? ' open' : ''}`;
-        years[year].forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'history-item';
-            const shouldHighlight = checkHighlight(item);
-            if (!shouldHighlight) div.classList.add('dimmed');
-            const timeDiv = document.createElement('div');
-            timeDiv.className = 'period-time';
-            const drawTimeStr = item.drawTime ? new Date(item.drawTime).toLocaleString('zh-CN') : '--';
-            timeDiv.textContent = `${I18n.t('history_period', { period: String(item.period).padStart(3, '0') })} ${I18n.t('history_time')}：${drawTimeStr}`;
-            div.appendChild(timeDiv);
-            const ballsRow = document.createElement('div');
-            ballsRow.className = 'balls-row';
-            item.numbers.forEach((num, idx) => {
-                const unit = document.createElement('div');
-                unit.className = 'ball-unit';
-                const isSpecial = (idx === 6);
-                const ball = document.createElement('div');
-                const color = getColor(num);
-                ball.className = `h-ball h-${color}${isSpecial ? ' h-special' : ''}`;
-                ball.textContent = num;
-                const posActive = activePositions.includes('all') || activePositions.includes(String(idx));
-                const zodiacKey = getZodiacKey(num);
-                const zodiacActive = activeZodiacs.includes('all') || (zodiacKey && activeZodiacs.includes(zodiacKey));
-                if (!shouldHighlight || !posActive || !zodiacActive) {
-                    ball.classList.add('dimmed');
-                } else {
-                    ball.classList.add('highlight');
-                }
-                unit.appendChild(ball);
-                const zLabel = document.createElement('div');
-                zLabel.className = `z-under-ball${isSpecial ? ' z-special' : ''}`;
-                zLabel.textContent = getZodiacDisplay(num);
-                if (!zodiacActive && shouldHighlight) {
-                    zLabel.classList.add('dimmed');
-                } else if (zodiacActive && shouldHighlight) {
-                    zLabel.classList.add('highlight');
-                }
-                unit.appendChild(zLabel);
-                ballsRow.appendChild(unit);
-            });
-            div.appendChild(ballsRow);
-            records.appendChild(div);
-        });
-        yearGroup.appendChild(records);
-        historyList.appendChild(yearGroup);
-    });
-}
-
-function checkHighlight(item) {
-    if (activePositions.includes('all') && activeZodiacs.includes('all')) return true;
-    let posMatch = activePositions.includes('all');
-    if (!posMatch) {
-        for (let i = 0; i < item.numbers.length; i++) {
-            if (activePositions.includes(String(i))) { posMatch = true; break; }
+// ============================================================
+//  Tab 切换事件
+// ============================================================
+tabs.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        switchTab(tabId);
+        if (tabId === 'tab-logs' && token) {
+            loadLogs();
         }
-    }
-    let zodiacMatch = activeZodiacs.includes('all');
-    if (!zodiacMatch) {
-        for (const num of item.numbers) {
-            const key = getZodiacKey(num);
-            if (key && activeZodiacs.includes(key)) { zodiacMatch = true; break; }
+        if (tabId === 'tab-dashboard' && token) {
+            loadDashboard();
         }
-    }
-    return posMatch && zodiacMatch;
-}
-
-function renderStats() {
-    const range = currentRange;
-    let filteredHistory = [];
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    if (range === 'all') {
-        filteredHistory = history;
-    } else if (range === 'week') {
-        const weekStart = new Date(today);
-        weekStart.setDate(today.getDate() - today.getDay() + 1);
-        filteredHistory = history.filter(item => {
-            if (!item.drawTime) return false;
-            return new Date(item.drawTime) >= weekStart;
-        });
-    } else if (range === 'month') {
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        filteredHistory = history.filter(item => {
-            if (!item.drawTime) return false;
-            return new Date(item.drawTime) >= monthStart;
-        });
-    } else if (range === 'year') {
-        const yearStart = new Date(now.getFullYear(), 0, 1);
-        filteredHistory = history.filter(item => {
-            if (!item.drawTime) return false;
-            return new Date(item.drawTime) >= yearStart;
-        });
-    }
-    const freq = {};
-    let totalDraws = 0;
-    filteredHistory.forEach(item => {
-        totalDraws++;
-        item.numbers.forEach(n => { freq[n] = (freq[n] || 0) + 1; });
     });
-    totalDrawsEl.textContent = totalDraws;
-    const numsWithFreq = Object.keys(freq).length;
-    coveredNumsEl.textContent = numsWithFreq;
-    let maxFreq = 0, minFreq = Infinity;
-    let maxNum = '-', minNum = '-';
-    for (const [num, f] of Object.entries(freq)) {
-        if (f > maxFreq) { maxFreq = f; maxNum = num; }
-        if (f < minFreq) { minFreq = f; minNum = num; }
-    }
-    if (maxFreq === 0) { maxFreq = 0; maxNum = '-'; }
-    if (minFreq === Infinity) { minFreq = 0; minNum = '-'; }
-    hottestNumEl.textContent = maxNum;
-    hottestFreqEl.textContent = maxFreq;
-    coldestNumEl.textContent = minNum;
-    coldestFreqEl.textContent = minFreq;
-    document.getElementById('statsInfo').textContent = I18n.t('stats_periods', { count: totalDraws });
-    statsGrid.innerHTML = '';
-    let hasData = false;
-    const maxFreqForBar = maxFreq > 0 ? maxFreq : 1;
-    for (let i = 1; i <= 49; i++) {
-        const f = freq[i] || 0;
-        if (f > 0) hasData = true;
-        const item = document.createElement('div');
-        const color = getColor(i);
-        const dotClass = color === 'red' ? 'red-dot' : color === 'blue' ? 'blue-dot' : 'green-dot';
-        const barClass = color === 'red' ? 'red-bar' : color === 'blue' ? 'blue-bar' : 'green-bar';
-        const barWidth = f > 0 ? Math.max(10, (f / maxFreqForBar) * 80) : 0;
-        item.className = `stat-item ${dotClass}`;
-        item.innerHTML = `
-            <span class="stat-num">${i}</span>
-            <span class="stat-freq">${f || '-'}</span>
-            <div class="stat-bar ${barClass}" style="width:${Math.min(barWidth, 50)}px;"></div>
-        `;
-        statsGrid.appendChild(item);
-    }
-    if (!hasData) {
-        statsGrid.innerHTML = `<span class="empty-stats">${I18n.t('stats_empty')}</span>`;
-    }
-    renderZodiacStats(filteredHistory);
-}
-
-function renderZodiacStats(filteredHistory) {
-    const zodiacFreq = {};
-    const zodiacKeys = ['snake','dragon','cat','tiger','ox','rat','pig','dog','rooster','monkey','goat','horse'];
-    const zodiacDisplayNames = ['zodiac_snake','zodiac_dragon','zodiac_cat','zodiac_tiger','zodiac_ox','zodiac_rat','zodiac_pig','zodiac_dog','zodiac_rooster','zodiac_monkey','zodiac_goat','zodiac_horse'];
-    zodiacKeys.forEach(z => { zodiacFreq[z] = 0; });
-    filteredHistory.forEach(item => {
-        item.numbers.forEach(num => {
-            const key = getZodiacKey(num);
-            if (key && zodiacFreq[key] !== undefined) {
-                zodiacFreq[key]++;
-            }
-        });
-    });
-    zodiacStatsGrid.innerHTML = '';
-    let hasZodiacData = false;
-    const maxZodiacFreq = Math.max(...Object.values(zodiacFreq), 1);
-    zodiacKeys.forEach((key, idx) => {
-        const count = zodiacFreq[key] || 0;
-        if (count > 0) hasZodiacData = true;
-        const item = document.createElement('div');
-        item.className = 'zodiac-item';
-        const barWidth = count > 0 ? Math.max(10, (count / maxZodiacFreq) * 100) : 0;
-        const displayName = I18n.t(zodiacDisplayNames[idx]);
-        item.innerHTML = `
-            <span class="z-name">${displayName}</span>
-            <div class="z-bar-wrap"><div class="z-bar" style="width:${Math.min(barWidth, 100)}%;"></div></div>
-            <span class="z-count">${count}</span>
-        `;
-        zodiacStatsGrid.appendChild(item);
-    });
-    if (!hasZodiacData) {
-        zodiacStatsGrid.innerHTML = `<span class="empty-stats">${I18n.t('stats_empty')}</span>`;
-    }
-}
-
-function initFilters() {
-    document.querySelectorAll('#positionFilter .filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const pos = this.dataset.pos;
-            if (pos === 'all') {
-                activePositions = ['all'];
-                document.querySelectorAll('#positionFilter .filter-btn').forEach(b => b.classList.remove('active', 'active-special'));
-                this.classList.add('active');
-            } else {
-                activePositions = activePositions.filter(p => p !== 'all');
-                document.querySelector('#positionFilter .filter-btn[data-pos="all"]').classList.remove('active');
-                const idx = activePositions.indexOf(pos);
-                if (idx >= 0) {
-                    activePositions.splice(idx, 1);
-                    this.classList.remove('active', 'active-special');
-                } else {
-                    activePositions.push(pos);
-                    this.classList.add(pos === '6' ? 'active-special' : 'active');
-                }
-                if (activePositions.length === 0) {
-                    activePositions = ['all'];
-                    document.querySelector('#positionFilter .filter-btn[data-pos="all"]').classList.add('active');
-                }
-            }
-            renderHistory();
-        });
-    });
-    const zodiacKeyMap = {
-        '蛇':'snake','龙':'dragon','猫':'cat','虎':'tiger',
-        '牛':'ox','鼠':'rat','猪':'pig','狗':'dog',
-        '鸡':'rooster','猴':'monkey','羊':'goat','马':'horse'
-    };
-    document.querySelectorAll('#zodiacFilter .filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const zodiacLabel = this.dataset.zodiac;
-            if (zodiacLabel === 'all') {
-                activeZodiacs = ['all'];
-                document.querySelectorAll('#zodiacFilter .filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            } else {
-                const zodiacKey = zodiacKeyMap[zodiacLabel] || zodiacLabel;
-                activeZodiacs = activeZodiacs.filter(z => z !== 'all');
-                document.querySelector('#zodiacFilter .filter-btn[data-zodiac="all"]').classList.remove('active');
-                const idx = activeZodiacs.indexOf(zodiacKey);
-                if (idx >= 0) {
-                    activeZodiacs.splice(idx, 1);
-                    this.classList.remove('active');
-                } else {
-                    activeZodiacs.push(zodiacKey);
-                    this.classList.add('active');
-                }
-                if (activeZodiacs.length === 0) {
-                    activeZodiacs = ['all'];
-                    document.querySelector('#zodiacFilter .filter-btn[data-zodiac="all"]').classList.add('active');
-                }
-            }
-            renderHistory();
-        });
-    });
-    document.querySelectorAll('#panel-stats .btn-sm[data-range]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('#panel-stats .btn-sm[data-range]').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            currentRange = this.dataset.range;
-            renderStats();
-        });
-    });
-}
-
-function initTabs() {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.data-panel').forEach(p => p.classList.remove('active'));
-            document.getElementById('panel-' + this.dataset.tab).classList.add('active');
-        });
-    });
-}
-
-let pollingInterval = null;
-
-function startSmartPolling() {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
-    }
-    function checkAndPoll() {
-        const now = new Date();
-        const [hour, minute] = drawTime.split(':').map(Number);
-        let drawDate = new Date(now);
-        drawDate.setHours(hour, minute, 0, 0);
-        if (drawDate < now) drawDate.setDate(drawDate.getDate() + 1);
-        const diffSeconds = (drawDate - now) / 1000;
-        if (diffSeconds <= 120 && diffSeconds > -10) {
-            if (!pollingInterval) {
-                pollingInterval = setInterval(async () => {
-                    try {
-                        const response = await fetch('${API_BASE}/api/draw/current');
-                        const result = await response.json();
-                        if (result.success && result.data) {
-                            const data = result.data;
-                            if (data.period > window._period && data.numbers && data.numbers.length > 0) {
-                                window._period = data.period;
-                                window._currentMain = data.numbers;
-                                await startRollingAnimation(data.numbers);
-                                await loadHistory();
-                                await loadFrequency();
-                                I18n.updateAll();
-                                statusText.textContent = I18n.t('draw_done', { period: String(window._period).padStart(3, '0') });
-                                statusText.className = 'status-text';
-                                if (pollingInterval) {
-                                    clearInterval(pollingInterval);
-                                    pollingInterval = null;
-                                }
-                            }
-                        }
-                    } catch (e) {}
-                }, 3000);
-            }
-        } else if (diffSeconds > 120) {
-            if (pollingInterval) {
-                clearInterval(pollingInterval);
-                pollingInterval = null;
-            }
-        }
-    }
-    checkAndPoll();
-    setInterval(checkAndPoll, 10000);
-}
-
-let ws = null;
-function connectWebSocket() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `wss://api.vilotto.vip/ws`;
-    if (ws && ws.readyState === WebSocket.OPEN) return;
-    ws = new WebSocket(wsUrl);
-    ws.onopen = function() { console.log('🔗 WebSocket 已连接'); };
-    ws.onmessage = function(event) {
-        try {
-            const data = JSON.parse(event.data);
-            if (data.event === 'draw_start') {
-                if (!isAnimating) {
-                    isAnimating = true;
-                    startRollingAnimation(data.numbers);
-                }
-            } else if (data.event === 'draw_complete') {
-                isAnimating = false;
-                window._period = data.period;
-                window._currentMain = data.numbers;
-                renderCurrentDraw(data.numbers, false);
-                I18n.updateAll();
-                loadHistory();
-                loadFrequency();
-                statusText.textContent = I18n.t('draw_done', { period: String(window._period).padStart(3, '0') });
-                statusText.className = 'status-text';
-            } else if (data.type === 'current') {
-                if (data.data.period > window._period && data.data.numbers.length > 0) {
-                    window._period = data.data.period;
-                    window._currentMain = data.data.numbers;
-                    renderCurrentDraw(data.data.numbers, false);
-                    I18n.updateAll();
-                    loadHistory();
-                    loadFrequency();
-                }
-            } else if (data.type === 'ping') {
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'pong' }));
-                }
-            }
-        } catch (e) { console.error('解析消息失败:', e); }
-    };
-    ws.onclose = function() {
-        console.log('🔌 WebSocket 断开，3秒后重连...');
-        setTimeout(connectWebSocket, 3000);
-    };
-    ws.onerror = function(error) { console.error('WebSocket 错误:', error); };
-}
+});
 
 // ============================================================
 //  初始化
 // ============================================================
-async function init() {
-    window._period = 0;
-    window._currentMain = [];
-    window._drawTime = '20:30';
-    
-    I18n.init('zh');
-    
-    await loadConfig();
-    await loadCurrentDraw();
-    await loadHistory();
-    await loadFrequency();
-
-    updateCountdown();
-    countdownInterval = setInterval(updateCountdown, 1000);
-
-    connectWebSocket();
-    startSmartPolling();
-
-    setInterval(async () => { await loadFrequency(); }, 30000);
-    setInterval(async () => { await loadHistory(); }, 60000);
-
-    initFilters();
-    initTabs();
-
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const lang = this.getAttribute('data-lang');
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            I18n.setLocale(lang);
-            renderCurrentDraw(window._currentMain, false);
-            loadHistory();
-            loadFrequency();
-        });
-    });
+if (token) {
+    afterLogin();
+} else {
+    beforeLogout();
 }
-
-init();
 </script>
 </body>
 </html>
