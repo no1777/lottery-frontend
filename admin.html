@@ -468,6 +468,110 @@ function renderLogs(logs) {
 }
 
 // ============================================================
+//  管理日志（分页 + 筛选 + 删除）
+// ============================================================
+let adminLogPage = 1;
+let adminLogLimit = 20;
+let adminLogSelectedIds = new Set();
+
+function loadAdminLogs() {
+    const tbody = document.getElementById('adminLogTableBody');
+    if (!tbody) {
+        console.error('找不到 adminLogTableBody 元素');
+        return;
+    }
+
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">加载中...</td></tr>';
+
+    const startDate = document.getElementById('adminLogStartDate')?.value || '';
+    const endDate = document.getElementById('adminLogEndDate')?.value || '';
+    const searchEmail = document.getElementById('adminLogSearchEmail')?.value || '';
+
+    let url = `/api/admin/logs?page=${adminLogPage}&limit=${adminLogLimit}`;
+    if (startDate) url += `&start_date=${startDate}`;
+    if (endDate) url += `&end_date=${endDate}`;
+    if (searchEmail) url += `&search_email=${encodeURIComponent(searchEmail)}`;
+
+    adminFetch(url)
+        .then(res => res.json())
+        .then(data => {
+            console.log('📊 日志数据:', data);  // 调试用
+            if (data.success) {
+                const logs = data.data || [];
+                const pagination = data.pagination || { total: 0, totalPages: 1, page: 1 };
+
+                if (logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">暂无日志</td></tr>';
+                } else {
+                    tbody.innerHTML = logs.map(log => `
+                        <tr>
+                            <td><input type="checkbox" class="admin-log-checkbox" data-id="${log.id}" onchange="adminLogToggleCheckbox('${log.id}')"></td>
+                            <td>${log.user_email || '-'}</td>
+                            <td><span class="key-box" title="${log.api_key || ''}">${log.api_key || '-'}</span></td>
+                            <td style="font-size:0.8rem;">${log.endpoint || '/'}</td>
+                            <td style="font-size:0.75rem;color:#667a88;">${log.ip_address || '-'}</td>
+                            <td style="font-size:0.75rem;color:#667a88;">${log.created_at ? new Date(log.created_at).toLocaleString() : '-'}</td>
+                            <td><button class="btn-sm btn-ban" onclick="adminLogDelete('${log.id}')">删除</button></td>
+                        </tr>
+                    `).join('');
+                }
+
+                // 更新分页信息
+                const start = pagination.total > 0 ? (pagination.page - 1) * pagination.limit + 1 : 0;
+                const end = Math.min(pagination.page * pagination.limit, pagination.total);
+                document.getElementById('adminLogStart').textContent = start;
+                document.getElementById('adminLogEnd').textContent = end;
+                document.getElementById('adminLogTotal').textContent = pagination.total;
+                document.getElementById('adminLogPageInfo').textContent = `${pagination.page} / ${pagination.totalPages || 1}`;
+                document.getElementById('adminLogCountInfo').textContent = `共 ${pagination.total} 条`;
+
+                document.getElementById('adminLogPrevBtn').disabled = pagination.page <= 1;
+                document.getElementById('adminLogNextBtn').disabled = pagination.page >= pagination.totalPages;
+            } else {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${data.message || '加载失败'}</td></tr>`;
+            }
+        })
+        .catch(err => {
+            console.error('加载日志错误:', err);
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">网络错误</td></tr>';
+        });
+}
+
+// 辅助函数：切换复选框
+function adminLogToggleCheckbox(id) {
+    const cb = document.querySelector(`.admin-log-checkbox[data-id="${id}"]`);
+    if (cb) {
+        if (cb.checked) {
+            adminLogSelectedIds.add(id);
+        } else {
+            adminLogSelectedIds.delete(id);
+        }
+        document.getElementById('adminLogSelectedInfo').textContent = `已选 ${adminLogSelectedIds.size} 条`;
+    }
+}
+
+// 删除单条日志
+function adminLogDelete(id) {
+    if (!confirm('确定要删除这条日志吗？')) return;
+    adminFetch(`/api/admin/logs/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ 日志已删除');
+                loadAdminLogs();
+            } else {
+                alert('❌ ' + (data.message || '删除失败'));
+            }
+        })
+        .catch(() => alert('❌ 网络错误'));
+}
+
+// 修改原有的 loadLogs 函数，调用 loadAdminLogs
+function loadLogs() {
+    loadAdminLogs();
+}
+    
+// ============================================================
 //  初始化
 // ============================================================
 function init() {
