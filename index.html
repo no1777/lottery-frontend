@@ -731,7 +731,7 @@ async function loadConfig() {
 
 async function loadCurrentDraw() {
     try {
-        const response = await fetch('${API_BASE}/api/draw/current');
+        const response = await fetch(`${API_BASE}/api/draw/current`);
         const result = await response.json();
         if (result.success && result.data) {
             const data = result.data;
@@ -1108,7 +1108,7 @@ function startSmartPolling() {
             if (!pollingInterval) {
                 pollingInterval = setInterval(async () => {
                     try {
-                        const response = await fetch('${API_BASE}/api/draw/current');
+                        const response = await fetch(`${API_BASE}/api/draw/current`);
                         const result = await response.json();
                         if (result.success && result.data) {
                             const data = result.data;
