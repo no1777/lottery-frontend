@@ -222,6 +222,7 @@
 const API_BASE = 'https://api.vnlotto.vip';
 const ADMIN_TOKEN_KEY = 'admin_token';
 let adminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
+let currentSelectedUserId = null; 
 
 // ============================================================
 //  登录 / 登出
@@ -428,6 +429,7 @@ function extendUser(userId) {
 //  IP白名单
 // ============================================================
 function manageWhitelist(userId) {
+    currentSelectedUserId = userId;
     adminFetch(`/api/admin/users/${userId}/whitelist`)
         .then(res => {
             if (res.status === 403) {
