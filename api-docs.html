@@ -93,6 +93,110 @@
     </div>
 
     <!-- ============================================================ -->
+    <!--  🔔 WebSocket 实时推送 -->
+    <!-- ============================================================ -->
+    <h2>🔔 实时推送服务 (WebSocket)</h2>
+
+    <p>通过 WebSocket 连接，您可以实时接收开奖数据推送，实现滚球动画同步展示。</p>
+
+    <h3>📡 连接地址</h3>
+    <pre><code>wss://api.vnlotto.vip/ws</code></pre>
+
+    <h3>🔐 认证方式</h3>
+    <p>连接建立后，无需额外认证即可接收推送。如需认证，在连接后发送：</p>
+    <pre><code>{
+        "type": "auth",
+        "apiKey": "mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }</code></pre>
+
+    <h3>📤 推送消息格式</h3>
+    <p>当新一期开奖完成时，服务器会推送以下格式的消息：</p>
+    <pre><code>{
+        "event": "draw_complete",
+        "period": 23,
+        "numbers": [38, 45, 23, 22, 42, 48, 4],
+        "zodiacs": ["猫", "鸡", "猪", "羊", "鼠", "马", "鸡"],
+        "colors": ["绿", "红", "绿", "绿", "蓝", "绿", "红"],
+        "drawTime": "2026-08-21T20:30:00.000Z"
+    }</code></pre>
+
+    <h3>📊 字段说明</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>字段</th>
+                <th>类型</th>
+                <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>event</td><td>string</td><td>事件类型，固定为 "draw_complete"</td></tr>
+            <tr><td>period</td><td>integer</td><td>期数</td></tr>
+            <tr><td>numbers</td><td>array</td><td>7个开奖号码（1-49）</td></tr>
+            <tr><td>zodiacs</td><td>array</td><td>7个号码对应的生肖</td></tr>
+            <tr><td>colors</td><td>array</td><td>7个号码对应的色波（红/蓝/绿）</td></tr>
+            <tr><td>drawTime</td><td>string</td><td>开奖时间 (ISO 8601)</td></tr>
+        </tbody>
+    </table>
+
+    <h3>📤 开奖开始事件</h3>
+    <p>当开奖开始时，服务器会推送：</p>
+    <pre><code>{
+        "event": "draw_start",
+        "period": 23,
+        "numbers": [38, 45, 23, 22, 42, 48, 4],
+        "zodiacs": ["猫", "鸡", "猪", "羊", "鼠", "马", "鸡"],
+        "colors": ["绿", "红", "绿", "绿", "蓝", "绿", "红"],
+        "startTime": "2026-08-21T20:30:00.000Z",
+        "totalBalls": 7,
+        "rollDurationPerBall": 6000
+    }</code></pre>
+
+    <h3>💡 JavaScript 示例</h3>
+    <pre><code>const ws = new WebSocket('wss://api.vnlotto.vip/ws');
+
+    ws.onopen = () => {
+        console.log('✅ WebSocket 已连接');
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+    
+        if (data.event === 'draw_start') {
+            console.log('🎰 第 ' + data.period + ' 期开奖开始');
+            // 启动滚球动画
+            startRollingAnimation(data.numbers);
+        }
+    
+        if (data.event === 'draw_complete') {
+            console.log('📊 第 ' + data.period + ' 期开奖完成');
+            console.log('📌 号码:', data.numbers);
+            console.log('🐾 生肖:', data.zodiacs);
+            console.log('🎨 色波:', data.colors);
+            // 更新展示
+            updateDisplay(data);
+        }
+    };
+
+    ws.onerror = (error) => {
+        console.error('❌ WebSocket 错误:', error);
+    };
+
+    ws.onclose = () => {
+        console.log('🔌 WebSocket 已断开，3秒后重连...');
+        setTimeout(() => connectWebSocket(), 3000);
+    };</code></pre>
+
+    <h3>🔄 心跳机制</h3>
+    <p>服务器会定期发送 ping 消息，客户端应回复 pong 以保持连接：</p>
+    <pre><code>ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'ping') {
+            ws.send(JSON.stringify({ type: 'pong' }));
+        }
+    };</code></pre>
+    
+    <!-- ============================================================ -->
     <!-- 当前开奖 -->
     <div class="section" id="current">
         <h2>📊 <span data-i18n="current_title">获取当前开奖</span> <span class="badge" data-i18n="api_key_badge">需要 API Key</span></h2>
@@ -288,7 +392,24 @@ const i18n = {
             err_429_sol: '降低调用频率（每分钟60次）',
             err_500: '服务器内部错误',
             err_500_sol: '稍后重试或联系管理员',
-            footer: '© 2026 六合彩开奖系统 · 开发者平台'
+            footer: '© 2026 六合彩开奖系统 · 开发者平台',
+            "websocket_title": "🔔 实时推送服务 (WebSocket)",
+            "websocket_desc": "通过 WebSocket 连接，您可以实时接收开奖数据推送，实现滚球动画同步展示。",
+            "websocket_url": "wss://api.vnlotto.vip/ws",
+            "websocket_auth": "连接建立后，无需额外认证即可接收推送。如需认证，在连接后发送：",
+            "websocket_format_title": "📤 推送消息格式",
+            "websocket_format_desc": "当新一期开奖完成时，服务器会推送以下格式的消息：",
+            "websocket_fields": "📊 字段说明",
+            "websocket_example": "💡 JavaScript 示例",
+            "websocket_heartbeat": "🔄 心跳机制",
+            "field_event": "事件类型，固定为 \"draw_complete\"",
+            "field_period": "期数",
+            "field_numbers": "7个开奖号码（1-49）",
+            "field_zodiacs": "7个号码对应的生肖",
+            "field_colors": "7个号码对应的色波（红/蓝/绿）",
+            "field_drawTime": "开奖时间 (ISO 8601)",
+            "event_draw_start": "开奖开始事件",
+            "event_draw_start_desc": "当开奖开始时，服务器会推送："
         },
         en: {
             title: 'Developer Documentation',
@@ -345,7 +466,24 @@ const i18n = {
             err_429_sol: 'Reduce request frequency (60/min)',
             err_500: 'Internal Server Error',
             err_500_sol: 'Retry later or contact admin',
-            footer: '© 2026 Lottery Draw System · Developer Platform'
+            footer: '© 2026 Lottery Draw System · Developer Platform',
+            "websocket_title": "🔔 Real-time Push Service (WebSocket)",
+            "websocket_desc": "Connect via WebSocket to receive real-time lottery data push and sync the rolling animation.",
+            "websocket_url": "wss://api.vnlotto.vip/ws",
+            "websocket_auth": "No additional authentication required after connection. If needed, send:",
+            "websocket_format_title": "📤 Push Message Format",
+            "websocket_format_desc": "When a new draw is completed, the server will push:",
+            "websocket_fields": "📊 Field Description",
+            "websocket_example": "💡 JavaScript Example",
+            "websocket_heartbeat": "🔄 Heartbeat Mechanism",
+            "field_event": "Event type, fixed to \"draw_complete\"",
+            "field_period": "Draw period",
+            "field_numbers": "7 draw numbers (1-49)",
+            "field_zodiacs": "Zodiac signs for the 7 numbers",
+            "field_colors": "Colors for the 7 numbers (red/blue/green)",
+            "field_drawTime": "Draw time (ISO 8601)",
+            "event_draw_start": "Draw Start Event",
+            "event_draw_start_desc": "When the draw starts, the server will push:"
         },
         vi: {
             title: 'Tài liệu dành cho nhà phát triển',
@@ -402,7 +540,24 @@ const i18n = {
             err_429_sol: 'Giảm tần suất gọi (60/phút)',
             err_500: 'Lỗi máy chủ nội bộ',
             err_500_sol: 'Thử lại sau hoặc liên hệ quản trị viên',
-            footer: '© 2026 Hệ thống quay số xổ số · Nền tảng dành cho nhà phát triển'
+            footer: '© 2026 Hệ thống quay số xổ số · Nền tảng dành cho nhà phát triển',
+            "websocket_title": "🔔 Dịch vụ đẩy dữ liệu thời gian thực (WebSocket)",
+            "websocket_desc": "Kết nối WebSocket để nhận dữ liệu xổ số thời gian thực, đồng bộ hóa hiệu ứng quay số.",
+            "websocket_url": "wss://api.vnlotto.vip/ws",
+            "websocket_auth": "Sau khi kết nối, không cần xác thực thêm. Nếu cần, gửi:",
+            "websocket_format_title": "📤 Định dạng tin nhắn đẩy",
+            "websocket_format_desc": "Khi kỳ quay mới hoàn tất, máy chủ sẽ gửi tin nhắn:",
+            "websocket_fields": "📊 Giải thích trường",
+            "websocket_example": "💡 Ví dụ JavaScript",
+            "websocket_heartbeat": "🔄 Cơ chế giữ kết nối",
+            "field_event": "Loại sự kiện, cố định là \"draw_complete\"",
+            "field_period": "Kỳ quay số",
+            "field_numbers": "7 số quay (1-49)",
+            "field_zodiacs": "Con giáp tương ứng với 7 số",
+            "field_colors": "Màu sắc tương ứng với 7 số (đỏ/xanh/lục)",
+            "field_drawTime": "Thời gian quay (ISO 8601)",
+            "event_draw_start": "Sự kiện bắt đầu quay",
+            "event_draw_start_desc": "Khi quay bắt đầu, máy chủ sẽ gửi:"
         }
     }
 };
