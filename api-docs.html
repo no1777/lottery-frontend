@@ -93,108 +93,78 @@
     </div>
 
     <!-- ============================================================ -->
-    <!--  🔔 WebSocket 实时推送 -->
-    <!-- ============================================================ -->
-    <h2>🔔 实时推送服务 (WebSocket)</h2>
+<!--  🔔 WebSocket 实时推送 -->
 
-    <p>通过 WebSocket 连接，您可以实时接收开奖数据推送，实现滚球动画同步展示。</p>
+<h2>🔔 实时推送服务 (WebSocket)</h2>
+<p>通过 WebSocket 连接，您可以实时接收开奖数据推送，实现滚球动画同步展示。</p>
 
-    <h3>📡 连接地址</h3>
-    <pre><code>wss://api.vnlotto.vip/ws</code></pre>
+<h3>📡 连接地址</h3>
+<pre><code>wss://api.vnlotto.vip/ws</code></pre>
 
-    <h3>🔐 认证方式</h3>
-    <p>连接建立后，无需额外认证即可接收推送。如需认证，在连接后发送：</p>
-    <pre><code>{
-        "type": "auth",
-        "apiKey": "mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-    }</code></pre>
+<h3>🔐 认证方式</h3>
+<p>连接建立后，无需额外认证即可接收推送。如需认证，在连接后发送：</p>
+<pre><code>{
+    "type": "auth",
+    "apiKey": "mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+}</code></pre>
 
-    <h3>📤 推送消息格式</h3>
-    <p>当新一期开奖完成时，服务器会推送以下格式的消息：</p>
-    <pre><code>{
-        "event": "draw_complete",
-        "period": 23,
-        "numbers": [38, 45, 23, 22, 42, 48, 4],
-        "zodiacs": ["猫", "鸡", "猪", "羊", "鼠", "马", "鸡"],
-        "colors": ["绿", "红", "绿", "绿", "蓝", "绿", "红"],
-        "drawTime": "2026-08-21T20:30:00.000Z"
-    }</code></pre>
+<h3>📤 推送消息格式</h3>
+<p>当新一期开奖完成时，服务器会推送以下格式的消息：</p>
+<pre><code>{
+    "event": "draw_complete",
+    "period": 23,
+    "numbers": [38, 45, 23, 22, 42, 48, 4],
+    "zodiacs": ["猫", "鸡", "猪", "羊", "鼠", "马", "鸡"],
+    "colors": ["绿", "红", "绿", "绿", "蓝", "绿", "红"],
+    "drawTime": "2026-08-21T20:30:00.000Z"
+}</code></pre>
 
-    <h3>📊 字段说明</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>字段</th>
-                <th>类型</th>
-                <th>说明</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td>event</td><td>string</td><td>事件类型，固定为 "draw_complete"</td></tr>
-            <tr><td>period</td><td>integer</td><td>期数</td></tr>
-            <tr><td>numbers</td><td>array</td><td>7个开奖号码（1-49）</td></tr>
-            <tr><td>zodiacs</td><td>array</td><td>7个号码对应的生肖</td></tr>
-            <tr><td>colors</td><td>array</td><td>7个号码对应的色波（红/蓝/绿）</td></tr>
-            <tr><td>drawTime</td><td>string</td><td>开奖时间 (ISO 8601)</td></tr>
-        </tbody>
-    </table>
+<h3>📊 字段说明</h3>
+<table>
+    <thead>
+        <tr>
+            <th>字段</th>
+            <th>类型</th>
+            <th>说明</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>event</td><td>string</td><td>事件类型，固定为 "draw_complete"</td></tr>
+        <tr><td>period</td><td>integer</td><td>期数</td></tr>
+        <tr><td>numbers</td><td>array</td><td>7个开奖号码（1-49）</td></tr>
+        <tr><td>zodiacs</td><td>array</td><td>7个号码对应的生肖</td></tr>
+        <tr><td>colors</td><td>array</td><td>7个号码对应的色波（红/蓝/绿）</td></tr>
+        <tr><td>drawTime</td><td>string</td><td>开奖时间 (ISO 8601)</td></tr>
+    </tbody>
+</table>
 
-    <h3>📤 开奖开始事件</h3>
-    <p>当开奖开始时，服务器会推送：</p>
-    <pre><code>{
-        "event": "draw_start",
-        "period": 23,
-        "numbers": [38, 45, 23, 22, 42, 48, 4],
-        "zodiacs": ["猫", "鸡", "猪", "羊", "鼠", "马", "鸡"],
-        "colors": ["绿", "红", "绿", "绿", "蓝", "绿", "红"],
-        "startTime": "2026-08-21T20:30:00.000Z",
-        "totalBalls": 7,
-        "rollDurationPerBall": 6000
-    }</code></pre>
+<h3>📤 开奖开始事件</h3>
+<p>当开奖开始时，服务器会推送：</p>
+<pre><code>{
+    "event": "draw_start",
+    "period": 23,
+    "numbers": [38, 45, 23, 22, 42, 48, 4],
+    "zodiacs": ["猫", "鸡", "猪", "羊", "鼠", "马", "鸡"],
+    "colors": ["绿", "红", "绿", "绿", "蓝", "绿", "红"],
+    "startTime": "2026-08-21T20:30:00.000Z",
+    "totalBalls": 7,
+    "rollDurationPerBall": 6000
+}</code></pre>
 
-    <h3>💡 JavaScript 示例</h3>
-    <pre><code>const ws = new WebSocket('wss://api.vnlotto.vip/ws');
+<h3>💡 示例</h3>
+<p>JavaScript 连接示例：</p>
+<pre><code>const ws = new WebSocket('wss://api.vnlotto.vip/ws');
 
-    ws.onopen = () => {
-        console.log('✅ WebSocket 已连接');
-    };
+ws.onopen = () => console.log('✅ 已连接');
 
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-    
-        if (data.event === 'draw_start') {
-            console.log('🎰 第 ' + data.period + ' 期开奖开始');
-            // 启动滚球动画
-            startRollingAnimation(data.numbers);
-        }
-    
-        if (data.event === 'draw_complete') {
-            console.log('📊 第 ' + data.period + ' 期开奖完成');
-            console.log('📌 号码:', data.numbers);
-            console.log('🐾 生肖:', data.zodiacs);
-            console.log('🎨 色波:', data.colors);
-            // 更新展示
-            updateDisplay(data);
-        }
-    };
-
-    ws.onerror = (error) => {
-        console.error('❌ WebSocket 错误:', error);
-    };
-
-    ws.onclose = () => {
-        console.log('🔌 WebSocket 已断开，3秒后重连...');
-        setTimeout(() => connectWebSocket(), 3000);
-    };</code></pre>
-
-    <h3>🔄 心跳机制</h3>
-    <p>服务器会定期发送 ping 消息，客户端应回复 pong 以保持连接：</p>
-    <pre><code>ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'ping') {
-            ws.send(JSON.stringify({ type: 'pong' }));
-        }
-    };</code></pre>
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.event === 'draw_complete') {
+        console.log('📌 号码:', data.numbers);
+        console.log('🐾 生肖:', data.zodiacs);
+        console.log('🎨 色波:', data.colors);
+    }
+};</code></pre>
     
     <!-- ============================================================ -->
     <!-- 当前开奖 -->
