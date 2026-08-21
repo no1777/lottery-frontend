@@ -95,7 +95,7 @@
     <!-- ============================================================ -->
 <!--  🔔 WebSocket 实时推送 -->
 
-<h2>🔔 实时推送服务 (WebSocket)</h2>
+<h2>🔔 实时推送服务 (WebSocket) <span class="badge">无需 API Key</span></h2>
 <p>通过 WebSocket 连接，您可以实时接收开奖数据推送，实现滚球动画同步展示。</p>
 
 <h3>📡 连接地址</h3>
@@ -121,13 +121,7 @@
 
 <h3>📊 字段说明</h3>
 <table>
-    <thead>
-        <tr>
-            <th>字段</th>
-            <th>类型</th>
-            <th>说明</th>
-        </tr>
-    </thead>
+    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
     <tbody>
         <tr><td>event</td><td>string</td><td>事件类型，固定为 "draw_complete"</td></tr>
         <tr><td>period</td><td>integer</td><td>期数</td></tr>
@@ -367,19 +361,23 @@ const i18n = {
             "websocket_desc": "通过 WebSocket 连接，您可以实时接收开奖数据推送，实现滚球动画同步展示。",
             "websocket_url": "wss://api.vnlotto.vip/ws",
             "websocket_auth": "连接建立后，无需额外认证即可接收推送。如需认证，在连接后发送：",
+            "websocket_code_auth": "{\n    \"type\": \"auth\",\n    \"apiKey\": \"mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}",
             "websocket_format_title": "📤 推送消息格式",
             "websocket_format_desc": "当新一期开奖完成时，服务器会推送以下格式的消息：",
+            "websocket_code_draw": "{\n    \"event\": \"draw_complete\",\n    \"period\": 23,\n    \"numbers\": [38, 45, 23, 22, 42, 48, 4],\n    \"zodiacs\": [\"猫\", \"鸡\", \"猪\", \"羊\", \"鼠\", \"马\", \"鸡\"],\n    \"colors\": [\"绿\", \"红\", \"绿\", \"绿\", \"蓝\", \"绿\", \"红\"],\n    \"drawTime\": \"2026-08-21T20:30:00.000Z\"\n}",
             "websocket_fields": "📊 字段说明",
-            "websocket_example": "💡 JavaScript 示例",
-            "websocket_heartbeat": "🔄 心跳机制",
             "field_event": "事件类型，固定为 \"draw_complete\"",
             "field_period": "期数",
             "field_numbers": "7个开奖号码（1-49）",
             "field_zodiacs": "7个号码对应的生肖",
             "field_colors": "7个号码对应的色波（红/蓝/绿）",
             "field_drawTime": "开奖时间 (ISO 8601)",
-            "event_draw_start": "开奖开始事件",
-            "event_draw_start_desc": "当开奖开始时，服务器会推送："
+            "websocket_start_title": "📤 开奖开始事件",
+            "websocket_start_desc": "当开奖开始时，服务器会推送：",
+            "websocket_code_start": "{\n    \"event\": \"draw_start\",\n    \"period\": 23,\n    \"numbers\": [38, 45, 23, 22, 42, 48, 4],\n    \"zodiacs\": [\"猫\", \"鸡\", \"猪\", \"羊\", \"鼠\", \"马\", \"鸡\"],\n    \"colors\": [\"绿\", \"红\", \"绿\", \"绿\", \"蓝\", \"绿\", \"红\"],\n    \"startTime\": \"2026-08-21T20:30:00.000Z\",\n    \"totalBalls\": 7,\n    \"rollDurationPerBall\": 6000\n}",
+            "websocket_example": "💡 示例",
+            "websocket_example_desc": "JavaScript 连接示例：",
+            "websocket_code_example": "const ws = new WebSocket('wss://api.vnlotto.vip/ws');\n\nws.onopen = () => console.log('✅ 已连接');\n\nws.onmessage = (event) => {\n    const data = JSON.parse(event.data);\n    if (data.event === 'draw_complete') {\n        console.log('📌 号码:', data.numbers);\n        console.log('🐾 生肖:', data.zodiacs);\n        console.log('🎨 色波:', data.colors);\n    }\n};"
         },
         en: {
             title: 'Developer Documentation',
@@ -441,19 +439,23 @@ const i18n = {
             "websocket_desc": "Connect via WebSocket to receive real-time lottery data push and sync the rolling animation.",
             "websocket_url": "wss://api.vnlotto.vip/ws",
             "websocket_auth": "No additional authentication required after connection. If needed, send:",
+            "websocket_code_auth": "{\n    \"type\": \"auth\",\n    \"apiKey\": \"mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}",
             "websocket_format_title": "📤 Push Message Format",
             "websocket_format_desc": "When a new draw is completed, the server will push:",
+            "websocket_code_draw": "{\n    \"event\": \"draw_complete\",\n    \"period\": 23,\n    \"numbers\": [38, 45, 23, 22, 42, 48, 4],\n    \"zodiacs\": [\"Cat\", \"Rooster\", \"Pig\", \"Goat\", \"Rat\", \"Horse\", \"Rooster\"],\n    \"colors\": [\"Green\", \"Red\", \"Green\", \"Green\", \"Blue\", \"Green\", \"Red\"],\n    \"drawTime\": \"2026-08-21T20:30:00.000Z\"\n}",
             "websocket_fields": "📊 Field Description",
-            "websocket_example": "💡 JavaScript Example",
-            "websocket_heartbeat": "🔄 Heartbeat Mechanism",
             "field_event": "Event type, fixed to \"draw_complete\"",
             "field_period": "Draw period",
             "field_numbers": "7 draw numbers (1-49)",
             "field_zodiacs": "Zodiac signs for the 7 numbers",
-            "field_colors": "Colors for the 7 numbers (red/blue/green)",
+            "field_colors": "Colors (red/blue/green)",
             "field_drawTime": "Draw time (ISO 8601)",
-            "event_draw_start": "Draw Start Event",
-            "event_draw_start_desc": "When the draw starts, the server will push:"
+            "websocket_start_title": "📤 Draw Start Event",
+            "websocket_start_desc": "When the draw starts, the server will push:",
+            "websocket_code_start": "{\n    \"event\": \"draw_start\",\n    \"period\": 23,\n    \"numbers\": [38, 45, 23, 22, 42, 48, 4],\n    \"zodiacs\": [\"Cat\", \"Rooster\", \"Pig\", \"Goat\", \"Rat\", \"Horse\", \"Rooster\"],\n    \"colors\": [\"Green\", \"Red\", \"Green\", \"Green\", \"Blue\", \"Green\", \"Red\"],\n    \"startTime\": \"2026-08-21T20:30:00.000Z\",\n    \"totalBalls\": 7,\n    \"rollDurationPerBall\": 6000\n}",
+            "websocket_example": "💡 Example",
+            "websocket_example_desc": "JavaScript connection example:",
+            "websocket_code_example": "const ws = new WebSocket('wss://api.vnlotto.vip/ws');\n\nws.onopen = () => console.log('✅ Connected');\n\nws.onmessage = (event) => {\n    const data = JSON.parse(event.data);\n    if (data.event === 'draw_complete') {\n        console.log('📌 Numbers:', data.numbers);\n        console.log('🐾 Zodiacs:', data.zodiacs);\n        console.log('🎨 Colors:', data.colors);\n    }\n};"
         },
         vi: {
             title: 'Tài liệu dành cho nhà phát triển',
@@ -515,19 +517,23 @@ const i18n = {
             "websocket_desc": "Kết nối WebSocket để nhận dữ liệu xổ số thời gian thực, đồng bộ hóa hiệu ứng quay số.",
             "websocket_url": "wss://api.vnlotto.vip/ws",
             "websocket_auth": "Sau khi kết nối, không cần xác thực thêm. Nếu cần, gửi:",
+            "websocket_code_auth": "{\n    \"type\": \"auth\",\n    \"apiKey\": \"mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}",
             "websocket_format_title": "📤 Định dạng tin nhắn đẩy",
-            "websocket_format_desc": "Khi kỳ quay mới hoàn tất, máy chủ sẽ gửi tin nhắn:",
+            "websocket_format_desc": "Khi kỳ quay mới hoàn tất, máy chủ sẽ gửi:",
+            "websocket_code_draw": "{\n    \"event\": \"draw_complete\",\n    \"period\": 23,\n    \"numbers\": [38, 45, 23, 22, 42, 48, 4],\n    \"zodiacs\": [\"Mèo\", \"Gà\", \"Heo\", \"Dê\", \"Chuột\", \"Ngựa\", \"Gà\"],\n    \"colors\": [\"Xanh\", \"Đỏ\", \"Xanh\", \"Xanh\", \"Lam\", \"Xanh\", \"Đỏ\"],\n    \"drawTime\": \"2026-08-21T20:30:00.000Z\"\n}",
             "websocket_fields": "📊 Giải thích trường",
-            "websocket_example": "💡 Ví dụ JavaScript",
-            "websocket_heartbeat": "🔄 Cơ chế giữ kết nối",
             "field_event": "Loại sự kiện, cố định là \"draw_complete\"",
             "field_period": "Kỳ quay số",
             "field_numbers": "7 số quay (1-49)",
-            "field_zodiacs": "Con giáp tương ứng với 7 số",
-            "field_colors": "Màu sắc tương ứng với 7 số (đỏ/xanh/lục)",
+            "field_zodiacs": "Con giáp tương ứng",
+            "field_colors": "Màu sắc (đỏ/xanh/lục)",
             "field_drawTime": "Thời gian quay (ISO 8601)",
-            "event_draw_start": "Sự kiện bắt đầu quay",
-            "event_draw_start_desc": "Khi quay bắt đầu, máy chủ sẽ gửi:"
+            "websocket_start_title": "📤 Sự kiện bắt đầu quay",
+            "websocket_start_desc": "Khi quay bắt đầu, máy chủ sẽ gửi:",
+            "websocket_code_start": "{\n    \"event\": \"draw_start\",\n    \"period\": 23,\n    \"numbers\": [38, 45, 23, 22, 42, 48, 4],\n    \"zodiacs\": [\"Mèo\", \"Gà\", \"Heo\", \"Dê\", \"Chuột\", \"Ngựa\", \"Gà\"],\n    \"colors\": [\"Xanh\", \"Đỏ\", \"Xanh\", \"Xanh\", \"Lam\", \"Xanh\", \"Đỏ\"],\n    \"startTime\": \"2026-08-21T20:30:00.000Z\",\n    \"totalBalls\": 7,\n    \"rollDurationPerBall\": 6000\n}",
+            "websocket_example": "💡 Ví dụ",
+            "websocket_example_desc": "Ví dụ kết nối JavaScript:",
+            "websocket_code_example": "const ws = new WebSocket('wss://api.vnlotto.vip/ws');\n\nws.onopen = () => console.log('✅ Đã kết nối');\n\nws.onmessage = (event) => {\n    const data = JSON.parse(event.data);\n    if (data.event === 'draw_complete') {\n        console.log('📌 Số:', data.numbers);\n        console.log('🐾 Con giáp:', data.zodiacs);\n        console.log('🎨 Màu sắc:', data.colors);\n    }\n};"
         }
     }
 };
