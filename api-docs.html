@@ -150,14 +150,14 @@
         <p data-i18n="websocket_example_desc">JavaScript 连接示例：</p>
         <div class="code-block"><span class="keyword">const</span> ws = <span class="keyword">new</span> <span class="key">WebSocket</span>(<span class="string">'wss://api.vnlotto.vip/ws'</span>);
 
-ws.<span class="key">onopen</span> = () => <span class="key">console</span>.<span class="key">log</span>(<span class="string">'✅ 已连接'</span>);
+ws.<span class="key">onopen</span> = () => <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_connected"></span>'</span>);
 
 ws.<span class="key">onmessage</span> = (event) => {
     <span class="keyword">const</span> data = <span class="key">JSON</span>.<span class="key">parse</span>(event.data);
     <span class="keyword">if</span> (data.event === <span class="string">'draw_complete'</span>) {
-        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'📌 号码:'</span>, data.numbers);
-        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'🐾 生肖:'</span>, data.zodiacs);
-        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'🎨 色波:'</span>, data.colors);
+        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_numbers"></span>'</span>, data.numbers);
+        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_zodiacs"></span>'</span>, data.zodiacs);
+        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_colors"></span>'</span>, data.colors);
     }
 };</div>
     </div>
@@ -324,7 +324,7 @@ const i18n = {
             key_hint: '💡 在 用户端 注册登录后可申请 API Key，需管理员激活。',
             api_key_badge: '需要 API Key',
             response_label: '📥 响应示例',
-            example_label: '💡 示例',
+            example_label: '示例',
             field_label: '字段',
             type_label: '类型',
             desc_label: '说明',
@@ -397,7 +397,11 @@ const i18n = {
             "color_example_4": "绿",
             "color_example_5": "蓝",
             "color_example_6": "绿",
-            "color_example_7": "红"
+            "color_example_7": "红",
+            "ws_connected": "✅ 已连接",
+            "ws_numbers": "📌 号码:",
+            "ws_zodiacs": "🐾 生肖:",
+            "ws_colors": "🎨 色波:"
         },
         en: {
             title: 'Developer Documentation',
@@ -420,7 +424,7 @@ const i18n = {
             key_hint: '💡 Register and login at Portal to apply for API Key (requires admin activation).',
             api_key_badge: 'API Key Required',
             response_label: '📥 Response Example',
-            example_label: '💡 Example',
+            example_label: 'Example',
             field_label: 'Field',
             type_label: 'Type',
             desc_label: 'Description',
@@ -493,7 +497,11 @@ const i18n = {
             "color_example_4": "Green",
             "color_example_5": "Blue",
             "color_example_6": "Green",
-            "color_example_7": "Red"
+            "color_example_7": "Red",
+            "ws_connected": "✅ Connected",
+            "ws_numbers": "📌 Numbers:",
+            "ws_zodiacs": "🐾 Zodiacs:",
+            "ws_colors": "🎨 Colors:"
         },
         vi: {
             title: 'Tài liệu dành cho nhà phát triển',
@@ -516,7 +524,7 @@ const i18n = {
             key_hint: '💡 Đăng ký và đăng nhập tại Cổng người dùng để xin API Key (cần quản trị viên kích hoạt).',
             api_key_badge: 'Cần API Key',
             response_label: '📥 Phản hồi mẫu',
-            example_label: '💡 Ví dụ',
+            example_label: 'Ví dụ',
             field_label: 'Trường',
             type_label: 'Loại',
             desc_label: 'Mô tả',
@@ -589,7 +597,11 @@ const i18n = {
             "color_example_4": "Xanh",
             "color_example_5": "Lam",
             "color_example_6": "Xanh",
-            "color_example_7": "Đỏ"
+            "color_example_7": "Đỏ",
+            "ws_connected": "✅ Đã kết nối",
+            "ws_numbers": "📌 Số:",
+            "ws_zodiacs": "🐾 Con giáp:",
+            "ws_colors": "🎨 Màu sắc:"
         }
     }
 };
