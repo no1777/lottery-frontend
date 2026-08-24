@@ -510,7 +510,7 @@ function renderLogs(logs) {
             <td><span class="key-box" title="${log.api_key || ''}">${log.api_key || '-'}</span></td>
             <td style="font-size:0.8rem;">${log.endpoint || '/'}</td>
             <td style="font-size:0.75rem;color:#667a88;">${log.ip_address || '-'}</td>
-            <td style="font-size:0.75rem;color:#667a88;">${log.created_at ? new Date(log.created_at + 'Z').toLocaleString() : '-'}</td>
+            <td style="font-size:0.75rem;color:#667a88;">${log.created_at ? new Date(log.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '-'}</td>
         </tr>
     `).join('');
 }
@@ -558,7 +558,7 @@ function loadAdminLogs() {
                             <td><span class="key-box" title="${log.api_key || ''}">${log.api_key || '-'}</span></td>
                             <td style="font-size:0.8rem;">${log.endpoint || '/'}</td>
                             <td style="font-size:0.75rem;color:#667a88;">${log.ip_address || '-'}</td>
-                            <td style="font-size:0.75rem;color:#667a88;">${log.created_at ? new Date(log.created_at + 'Z').toLocaleString() : '-'}</td>
+                            <td style="font-size:0.75rem;color:#667a88;">${log.created_at ? new Date(log.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '-'}</td>
                             <td><button class="btn-sm btn-ban" onclick="adminLogDelete('${log.id}')">删除</button></td>
                         </tr>
                     `).join('');
