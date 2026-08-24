@@ -495,28 +495,7 @@ function refreshWhitelistDisplay(userId) {
 //  加载日志
 // ============================================================
 function loadLogs() {
-    const tbody = document.getElementById('logTableBody');
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">加载中...</td></tr>';
-
-    adminFetch('/api/admin/logs')
-        .then(res => {
-            if (res.status === 403) {
-                // 日志接口 403 只提示，不踢出（或者静默失败）
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">无权限查看日志</td></tr>';
-                return null;
-            }
-            return res.json();
-        })
-        .then(data => {
-            if (data && data.success) {
-                renderLogs(data.logs || []);
-            } else if (data !== null) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">暂无日志</td></tr>';
-            }
-        })
-        .catch(() => {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:1rem;">加载失败</td></tr>';
-        });
+    loadAdminLogs();
 }
 
 function renderLogs(logs) {
