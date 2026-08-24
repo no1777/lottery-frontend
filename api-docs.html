@@ -148,18 +148,33 @@
 
         <h3>💡 <span data-i18n="example_label">示例</span></h3>
         <p data-i18n="websocket_example_desc">JavaScript 连接示例：</p>
-        <div class="code-block"><span class="keyword">const</span> ws = <span class="keyword">new</span> <span class="key">WebSocket</span>(<span class="string">'wss://api.vnlotto.vip/ws'</span>);
+        <div class="code-block"><span class="keyword">const</span> API_KEY = <span class="string">'<span data-i18n="ws_your_api_key"></span>'</span>;
 
-ws.<span class="key">onopen</span> = () => <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_connected"></span>'</span>);
+        <span class="keyword">const</span> ws = <span class="keyword">new</span> <span class="key">WebSocket</span>(<span class="string">'wss://api.vnlotto.vip/ws'</span>);
 
-ws.<span class="key">onmessage</span> = (event) => {
-    <span class="keyword">const</span> data = <span class="key">JSON</span>.<span class="key">parse</span>(event.data);
-    <span class="keyword">if</span> (data.event === <span class="string">'draw_complete'</span>) {
-        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_numbers"></span>'</span>, data.numbers);
-        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_zodiacs"></span>'</span>, data.zodiacs);
-        <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_colors"></span>'</span>, data.colors);
-    }
-};</div>
+        ws.<span class="key">onopen</span> = () => {
+            <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_connecting"></span>'</span>);
+            ws.<span class="key">send</span>(<span class="key">JSON</span>.<span class="key">stringify</span>({
+                <span class="key">type</span>: <span class="string">'auth'</span>,
+                <span class="key">apiKey</span>: API_KEY
+            }));
+        };
+
+        ws.<span class="key">onmessage</span> = (event) => {
+            <span class="keyword">const</span> data = <span class="key">JSON</span>.<span class="key">parse</span>(event.data);
+    
+            <span class="keyword">if</span> (data.type === <span class="string">'auth_success'</span>) {
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_auth_success"></span>'</span>);
+                <span class="keyword">return</span>;
+            }
+            <span class="keyword">if</span> (data.type === <span class="string">'auth_failed'</span>) {
+                <span class="key">console</span>.<span class="key">error</span>(<span class="string">'<span data-i18n="ws_auth_failed"></span>'</span>, data.message);
+                <span class="keyword">return</span>;
+            }
+            <span class="keyword">if</span> (data.event === <span class="string">'draw_complete'</span>) {
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_draw_data"></span>'</span>, data);
+            }
+        };</div>
     </div>
 
     <!-- ============================================================ -->
@@ -401,7 +416,12 @@ const i18n = {
             "ws_connected": "✅ 已连接",
             "ws_numbers": "📌 号码:",
             "ws_zodiacs": "🐾 生肖:",
-            "ws_colors": "🎨 色波:"
+            "ws_colors": "🎨 色波:",
+            "ws_your_api_key": "您的 API Key",
+            "ws_connecting": "🔗 WebSocket 已连接，正在认证...",
+            "ws_auth_success": "✅ 认证成功，等待推送数据...",
+            "ws_auth_failed": "❌ 认证失败:",
+            "ws_draw_data": "📊 开奖数据:"
         },
         en: {
             title: 'Developer Documentation',
@@ -501,7 +521,12 @@ const i18n = {
             "ws_connected": "✅ Connected",
             "ws_numbers": "📌 Numbers:",
             "ws_zodiacs": "🐾 Zodiacs:",
-            "ws_colors": "🎨 Colors:"
+            "ws_colors": "🎨 Colors:",
+            "ws_your_api_key": "Your API Key",
+            "ws_connecting": "🔗 WebSocket connected, authenticating...",
+            "ws_auth_success": "✅ Authentication successful, waiting for data...",
+            "ws_auth_failed": "❌ Authentication failed:",
+            "ws_draw_data": "📊 Draw data:"
         },
         vi: {
             title: 'Tài liệu dành cho nhà phát triển',
@@ -601,7 +626,12 @@ const i18n = {
             "ws_connected": "✅ Đã kết nối",
             "ws_numbers": "📌 Số:",
             "ws_zodiacs": "🐾 Con giáp:",
-            "ws_colors": "🎨 Màu sắc:"
+            "ws_colors": "🎨 Màu sắc:",
+            "ws_your_api_key": "API Key của bạn",
+            "ws_connecting": "🔗 WebSocket đã kết nối, đang xác thực...",
+            "ws_auth_success": "✅ Xác thực thành công, đang chờ dữ liệu...",
+            "ws_auth_failed": "❌ Xác thực thất bại:",
+            "ws_draw_data": "📊 Dữ liệu quay số:"
         }
     }
 };
