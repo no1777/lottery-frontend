@@ -186,12 +186,12 @@
         </div>
         <p data-i18n="current_desc">获取最新一期的开奖号码。</p>
 
-        <h3>📊 参数说明</h3>
+        <h3>📊 <span data-i18n="param_title">参数说明</span></h3>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th data-i18n="param_label">参数</th><th data-i18n="type_label">类型</th><th data-i18n="desc_label">说明</th></tr></thead>
                 <tbody>
-                    <tr><td>lang</td><td>string</td><td>可选，语言代码：<code>zh</code>（中文）、<code>vi</code>（越南语）、<code>en</code>（英语），默认 <code>zh</code></td></tr>
+                    <tr><td>lang</td><td>string</td><td data-i18n="param_lang">可选，语言代码：zh（中文）、vi（越南语）、en（英语），默认 zh</td></tr>
                 </tbody>
             </table>
         </div>
@@ -234,7 +234,7 @@
                 <tbody>
                     <tr><td>limit</td><td>integer</td><td data-i18n="param_limit">每页数量（默认 20）</td></tr>
                     <tr><td>offset</td><td>integer</td><td data-i18n="param_offset">偏移量（默认 0）</td></tr>
-                    <tr><td>lang</td><td>string</td><td>可选，语言代码：<code>zh</code>（中文）、<code>vi</code>（越南语）、<code>en</code>（英语），默认 <code>zh</code></td></tr>
+                    <tr><td>lang</td><td>string</td><td data-i18n="param_lang">可选，语言代码：zh（中文）、vi（越南语）、en（英语），默认 zh</td></tr>
                 </tbody>
             </table>
         </div>
@@ -433,7 +433,9 @@ const i18n = {
             "ws_connecting": "🔗 WebSocket 已连接，正在认证...",
             "ws_auth_success": "✅ 认证成功，等待推送数据...",
             "ws_auth_failed": "❌ 认证失败:",
-            "ws_draw_data": "📊 开奖数据:"
+            "ws_draw_data": "📊 开奖数据:",
+            "param_lang_label": "可选，语言代码：zh（中文）、vi（越南语）、en（英语），默认 zh",
+            "param_lang": "语言代码：zh（中文）、vi（越南语）、en（英语），默认 zh"
         },
         en: {
             title: 'Developer Documentation',
@@ -538,7 +540,9 @@ const i18n = {
             "ws_connecting": "🔗 WebSocket connected, authenticating...",
             "ws_auth_success": "✅ Authentication successful, waiting for data...",
             "ws_auth_failed": "❌ Authentication failed:",
-            "ws_draw_data": "📊 Draw data:"
+            "ws_draw_data": "📊 Draw data:",
+            "param_lang_label": "Optional, language code: zh (Chinese), vi (Vietnamese), en (English), default zh",
+            "param_lang": "Language code: zh (Chinese), vi (Vietnamese), en (English), default zh"
         },
         vi: {
             title: 'Tài liệu dành cho nhà phát triển',
@@ -643,7 +647,9 @@ const i18n = {
             "ws_connecting": "🔗 WebSocket đã kết nối, đang xác thực...",
             "ws_auth_success": "✅ Xác thực thành công, đang chờ dữ liệu...",
             "ws_auth_failed": "❌ Xác thực thất bại:",
-            "ws_draw_data": "📊 Dữ liệu quay số:"
+            "ws_draw_data": "📊 Dữ liệu quay số:",
+            "param_lang_label": "Tùy chọn, mã ngôn ngữ: zh (Trung), vi (Việt), en (Anh), mặc định zh",
+            "param_lang": "Mã ngôn ngữ: zh (Trung), vi (Việt), en (Anh), mặc định zh"
         }
     }
 };
