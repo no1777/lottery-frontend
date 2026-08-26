@@ -185,6 +185,17 @@
             <span class="method">GET</span> <span class="path">/v1/draw/current</span>
         </div>
         <p data-i18n="current_desc">获取最新一期的开奖号码。</p>
+
+        <h3>📊 参数说明</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                    <tr><td>lang</td><td>string</td><td>可选，语言代码：<code>zh</code>（中文）、<code>vi</code>（越南语）、<code>en</code>（英语），默认 <code>zh</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+        
         <h3 data-i18n="response_label">📥 响应示例</h3>
         <div class="code-block">{
     <span class="key">"success"</span>: <span class="keyword">true</span>,
@@ -195,7 +206,7 @@
     }
 }</div>
         <h3 data-i18n="example_label">💡 示例</h3>
-        <div class="code-block">curl -X GET https://api.vnlotto.vip/api/v1/draw/current \
+        <div class="code-block">curl -X GET "https://api.vnlotto.vip/api/v1/draw/current?lang=vi" \
   -H "x-api-key: mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</div>
         <div class="table-wrap" style="margin-top:0.5rem;">
             <table>
@@ -223,6 +234,7 @@
                 <tbody>
                     <tr><td>limit</td><td>integer</td><td data-i18n="param_limit">每页数量（默认 20）</td></tr>
                     <tr><td>offset</td><td>integer</td><td data-i18n="param_offset">偏移量（默认 0）</td></tr>
+                    <tr><td>lang</td><td>string</td><td>可选，语言代码：<code>zh</code>（中文）、<code>vi</code>（越南语）、<code>en</code>（英语），默认 <code>zh</code></td></tr>
                 </tbody>
             </table>
         </div>
