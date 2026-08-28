@@ -1150,6 +1150,20 @@ function startSmartPolling() {
 }
 
 let ws = null;
+async function fetchApiKey() {
+    try {
+        const response = await fetch(`${API_BASE}/api/public/show-key`);
+        const result = await response.json();
+        if (result.success) {
+            return result.apiKey;
+        }
+        console.warn('获取 API Key 失败');
+        return null;
+    } catch (e) {
+        console.error('获取 API Key 错误:', e);
+        return null;
+    }
+}
 let wsAuthenticated = false;
 
 function connectWebSocket() {
@@ -1166,30 +1180,30 @@ function connectWebSocket() {
     wsAuthenticated = false;
     
     ws.onopen = function() {
-        console.log('🔗 WebSocket 已连接，正在认证...');
-        // ✅ 连接后立即发送认证消息
-        // 从 localStorage 获取 API Key
-        const apiKey = localStorage.getItem('api_key') || '';
-        if (apiKey) {
-            ws.send(JSON.stringify({
-                type: 'auth',
-                apiKey: apiKey
-            }));
-        } else {
-            console.warn('⚠️ 未找到 API Key，尝试匿名连接');
-            // 如果没有 API Key，可以提示用户或使用默认
-            ws.send(JSON.stringify({
-                type: 'auth',
-                apiKey: 'guest'
-            }));
-        }
+        console.log('🔗 WebSocket 已连接，正在获取 API Key...');
+        // 从后端接口获取 Key
+        fetchApiKey().then(apiKey => {
+            if (apiKey) {
+                ws.send(JSON.stringify({
+                    type: 'auth',
+                    apiKey: apiKey
+                }));
+                console.log('✅ 已发送认证请求');
+            } else {
+                console.error('❌ 无法获取 API Key，认证失败');
+                ws.close();
+            }
+        }).catch(err => {
+            console.error('❌ 获取 API Key 异常:', err);
+            ws.close();
+        });
     };
     
     ws.onmessage = function(event) {
         try {
             const data = JSON.parse(event.data);
             
-            // ✅ 处理认证响应
+            // 处理认证响应
             if (data.type === 'auth_success') {
                 wsAuthenticated = true;
                 console.log('✅ WebSocket 认证成功，等待推送数据...');
@@ -1199,7 +1213,6 @@ function connectWebSocket() {
             if (data.type === 'auth_failed') {
                 wsAuthenticated = false;
                 console.error('❌ WebSocket 认证失败:', data.message);
-                // 认证失败，关闭连接
                 ws.close();
                 return;
             }
@@ -1249,7 +1262,6 @@ function connectWebSocket() {
         console.error('WebSocket 错误:', error);
     };
 }
-
 // ============================================================
 //  初始化
 // ============================================================
@@ -1259,22 +1271,6 @@ async function init() {
     window._drawTime = '20:30';
     
     I18n.init('zh');
-    
-    // ✅ 尝试获取用户的 API Key
-    try {
-        const token = localStorage.getItem('jwt_token');
-        if (token) {
-            const response = await fetch(`${API_BASE}/api/auth/me`, {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            const result = await response.json();
-            if (result.success && result.api_key) {
-                localStorage.setItem('api_key', result.api_key.api_key);
-            }
-        }
-    } catch (e) {
-        console.log('获取 API Key 失败:', e);
-    }
     
     await loadConfig();
     await loadCurrentDraw();
