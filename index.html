@@ -1150,15 +1150,61 @@ function startSmartPolling() {
 }
 
 let ws = null;
+let wsAuthenticated = false;
+
 function connectWebSocket() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // 如果已经连接且已认证，不重复连接
+    if (ws && ws.readyState === WebSocket.OPEN && wsAuthenticated) {
+        console.log('🔗 WebSocket 已认证连接，无需重连');
+        return;
+    }
+
     const wsUrl = `wss://api.vnlotto.vip/ws`;
     if (ws && ws.readyState === WebSocket.OPEN) return;
+    
     ws = new WebSocket(wsUrl);
-    ws.onopen = function() { console.log('🔗 WebSocket 已连接'); };
+    wsAuthenticated = false;
+    
+    ws.onopen = function() {
+        console.log('🔗 WebSocket 已连接，正在认证...');
+        // ✅ 连接后立即发送认证消息
+        // 从 localStorage 获取 API Key
+        const apiKey = localStorage.getItem('api_key') || '';
+        if (apiKey) {
+            ws.send(JSON.stringify({
+                type: 'auth',
+                apiKey: apiKey
+            }));
+        } else {
+            console.warn('⚠️ 未找到 API Key，尝试匿名连接');
+            // 如果没有 API Key，可以提示用户或使用默认
+            ws.send(JSON.stringify({
+                type: 'auth',
+                apiKey: 'guest'
+            }));
+        }
+    };
+    
     ws.onmessage = function(event) {
         try {
             const data = JSON.parse(event.data);
+            
+            // ✅ 处理认证响应
+            if (data.type === 'auth_success') {
+                wsAuthenticated = true;
+                console.log('✅ WebSocket 认证成功，等待推送数据...');
+                return;
+            }
+            
+            if (data.type === 'auth_failed') {
+                wsAuthenticated = false;
+                console.error('❌ WebSocket 认证失败:', data.message);
+                // 认证失败，关闭连接
+                ws.close();
+                return;
+            }
+            
+            // 处理开奖事件
             if (data.event === 'draw_start') {
                 if (!isAnimating) {
                     isAnimating = true;
@@ -1188,13 +1234,20 @@ function connectWebSocket() {
                     ws.send(JSON.stringify({ type: 'pong' }));
                 }
             }
-        } catch (e) { console.error('解析消息失败:', e); }
+        } catch (e) {
+            console.error('解析消息失败:', e);
+        }
     };
+    
     ws.onclose = function() {
+        wsAuthenticated = false;
         console.log('🔌 WebSocket 断开，3秒后重连...');
         setTimeout(connectWebSocket, 3000);
     };
-    ws.onerror = function(error) { console.error('WebSocket 错误:', error); };
+    
+    ws.onerror = function(error) {
+        console.error('WebSocket 错误:', error);
+    };
 }
 
 // ============================================================
@@ -1206,6 +1259,22 @@ async function init() {
     window._drawTime = '20:30';
     
     I18n.init('zh');
+    
+    // ✅ 尝试获取用户的 API Key
+    try {
+        const token = localStorage.getItem('jwt_token');
+        if (token) {
+            const response = await fetch(`${API_BASE}/api/auth/me`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const result = await response.json();
+            if (result.success && result.api_key) {
+                localStorage.setItem('api_key', result.api_key.api_key);
+            }
+        }
+    } catch (e) {
+        console.log('获取 API Key 失败:', e);
+    }
     
     await loadConfig();
     await loadCurrentDraw();
