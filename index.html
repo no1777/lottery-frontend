@@ -547,10 +547,40 @@ function createStaticBall(num, index) {
 function setWaitingState() {
     mainContainer.innerHTML = '';
     for (let i = 0; i < 7; i++) {
-        mainContainer.appendChild(createWaitingBall(i));
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ball-wrapper';
+        const ball = document.createElement('div');
+        ball.className = 'ball waiting';
+        ball.textContent = '?';
+        wrapper.appendChild(ball);
+        const label = document.createElement('div');
+        label.className = 'zodiac-label empty';
+        label.textContent = '--';
+        wrapper.appendChild(label);
+        mainContainer.appendChild(wrapper);
     }
 }
 
+function updateBall(index, number, zodiac, color) {
+    const wrappers = document.querySelectorAll('.ball-wrapper');
+    if (index > wrappers.length) return;
+    
+    const wrapper = wrappers[index - 1];
+    const ball = wrapper.querySelector('.ball');
+    const label = wrapper.querySelector('.zodiac-label');
+    
+    // 更新球
+    ball.className = `ball color-${color}`;
+    ball.textContent = number;
+    ball.classList.add('reveal');
+    setTimeout(() => ball.classList.remove('reveal'), 600);
+    
+    // 更新生肖标签
+    label.className = 'zodiac-label';
+    label.textContent = zodiac || getZodiacDisplay(number);
+    label.style.color = '#ffd700';
+}
+    
 function renderCurrentDraw(main, animate = false) {
     mainContainer.innerHTML = '';
     if (!main || main.length === 0) {
@@ -1202,28 +1232,39 @@ function connectWebSocket() {
     ws.onmessage = function(event) {
         try {
             const data = JSON.parse(event.data);
-            
+        
             // 处理认证响应
             if (data.type === 'auth_success') {
                 wsAuthenticated = true;
                 console.log('✅ WebSocket 认证成功，等待推送数据...');
                 return;
             }
-            
+        
             if (data.type === 'auth_failed') {
                 wsAuthenticated = false;
                 console.error('❌ WebSocket 认证失败:', data.message);
                 ws.close();
                 return;
             }
-            
+        
             // 处理开奖事件
             if (data.event === 'draw_start') {
-                if (!isAnimating) {
-                    isAnimating = true;
-                    startRollingAnimation(data.numbers);
-                }
-            } else if (data.event === 'draw_complete') {
+                console.log('🎰 开奖开始:', data.period);
+                setWaitingState();
+                statusText.textContent = '🎰 开奖中...';
+                statusText.className = 'status-text';
+                isAnimating = true;
+                return;
+            }
+            
+            // ✅ 逐个球推送
+            if (data.event === 'ball_draw') {
+                console.log(`🎯 第 ${data.ballIndex} 个球: ${data.number}`);
+                updateBall(data.ballIndex, data.number, data.zodiac, data.color);
+                return;
+            }
+        
+            if (data.event === 'draw_complete') {
                 isAnimating = false;
                 window._period = data.period;
                 window._currentMain = data.numbers;
@@ -1233,7 +1274,10 @@ function connectWebSocket() {
                 loadFrequency();
                 statusText.textContent = I18n.t('draw_done', { period: String(window._period).padStart(3, '0') });
                 statusText.className = 'status-text';
-            } else if (data.type === 'current') {
+                return;
+            }
+        
+            if (data.type === 'current') {
                 if (data.data.period > window._period && data.data.numbers.length > 0) {
                     window._period = data.data.period;
                     window._currentMain = data.data.numbers;
@@ -1242,7 +1286,9 @@ function connectWebSocket() {
                     loadHistory();
                     loadFrequency();
                 }
-            } else if (data.type === 'ping') {
+            }
+        
+            if (data.type === 'ping') {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'pong' }));
                 }
@@ -1250,16 +1296,6 @@ function connectWebSocket() {
         } catch (e) {
             console.error('解析消息失败:', e);
         }
-    };
-    
-    ws.onclose = function() {
-        wsAuthenticated = false;
-        console.log('🔌 WebSocket 断开，3秒后重连...');
-        setTimeout(connectWebSocket, 3000);
-    };
-    
-    ws.onerror = function(error) {
-        console.error('WebSocket 错误:', error);
     };
 }
 // ============================================================
