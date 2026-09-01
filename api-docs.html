@@ -128,8 +128,8 @@
         <span class="key">"ballIndex"</span>: <span class="number">1</span>,
         <span class="key">"totalBalls"</span>: <span class="number">7</span>,
         <span class="key">"number"</span>: <span class="number">38</span>,
-        <span class="key">"zodiac"</span>: <span class="string">"猫"</span>,
-        <span class="key">"color"</span>: <span class="string">"green"</span>,
+        <span class="key">"zodiac"</span>: <span class="string">"<span data-i18n="zodiac_example_1"></span>"</span>,
+        <span class="key">"color"</span>: <span class="string">"<span data-i18n="color_example_1"></span>"</span>,
         <span class="key">"drawTime"</span>: <span class="string">"2026-09-01T13:30:06.000Z"</span>
     }</div>
 
@@ -477,7 +477,10 @@ const i18n = {
             event_draw_complete: '开奖完成',
             draw_start_desc: '开奖开始时推送',
             ball_draw_desc: '每个球揭晓时推送（共7次）',
-            draw_complete_desc: '所有球揭晓后推送'
+            draw_complete_desc: '所有球揭晓后推送',
+            console_log_draw_start: '🎰 开奖开始，第 {period} 期',
+            console_log_ball_draw: '🎯 第 {ballIndex} 个球: {number} ({zodiac}, {color})',
+            console_log_draw_complete: '📊 开奖完成:'
         },
         en: {
             title: 'Developer Documentation',
@@ -598,7 +601,10 @@ const i18n = {
             event_draw_complete: 'Draw Complete',
             draw_start_desc: 'Push when draw starts',
             ball_draw_desc: 'Push when each ball is revealed (7 times)',
-            draw_complete_desc: 'Push after all balls are revealed'
+            draw_complete_desc: 'Push after all balls are revealed',
+            console_log_draw_start: '🎰 Draw started, period {period}',
+            console_log_ball_draw: '🎯 Ball {ballIndex}: {number} ({zodiac}, {color})',
+            console_log_draw_complete: '📊 Draw complete:'
         },
         vi: {
             title: 'Tài liệu dành cho nhà phát triển',
@@ -719,7 +725,10 @@ const i18n = {
             event_draw_complete: 'Hoàn thành quay',
             draw_start_desc: 'Đẩy khi bắt đầu quay',
             ball_draw_desc: 'Đẩy khi mỗi quả bóng được tiết lộ (tổng 7 lần)',
-            draw_complete_desc: 'Đẩy sau khi tất cả bóng được tiết lộ'
+            draw_complete_desc: 'Đẩy sau khi tất cả bóng được tiết lộ',
+            console_log_draw_start: '🎰 Bắt đầu quay, kỳ {period}',
+            console_log_ball_draw: '🎯 Bóng {ballIndex}: {number} ({zodiac}, {color})',
+            console_log_draw_complete: '📊 Hoàn thành quay:'
         }
     }
 };
