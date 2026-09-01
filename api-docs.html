@@ -192,15 +192,15 @@
                 <span class="keyword">return</span>;
             }
             <span class="keyword">if</span> (data.event === <span class="string">'draw_start'</span>) {
-                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'🎰 开奖开始，第'</span> + data.period + <span class="string">'期'</span>);
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="console_draw_start"></span>'</span>, data);
                 <span class="keyword">return</span>;
             }
             <span class="keyword">if</span> (data.event === <span class="string">'ball_draw'</span>) {
-                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'🎯 第'</span> + data.ballIndex + <span class="string">'个球: '</span> + data.number + <span class="string">' ('</span> + data.zodiac + <span class="string">', '</span> + data.color + <span class="string">')'</span>);
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="console_ball_draw"></span>'</span>, data);
                 <span class="keyword">return</span>;
             }
             <span class="keyword">if</span> (data.event === <span class="string">'draw_complete'</span>) {
-                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'📊 开奖完成:'</span>, data);
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="console_draw_complete"></span>'</span>, data);
             }
         };</div>
     </div>
