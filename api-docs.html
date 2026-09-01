@@ -102,49 +102,69 @@
         <p><strong data-i18n="websocket_url_label">连接地址:</strong> <code style="color:#6bda6b;">wss://api.vnlotto.vip/ws</code></p>
 
         <h3>🔐 <span data-i18n="websocket_auth_title">认证方式</span></h3>
-        <p data-i18n="websocket_auth_desc">连接建立后，无需额外认证即可接收推送。如需认证，在连接后发送：</p>
+        <p data-i18n="websocket_auth_desc">连接建立后，需发送认证消息：</p>
         <div class="code-block">{
-    <span class="key">"type"</span>: <span class="string">"auth"</span>,
-    <span class="key">"apiKey"</span>: <span class="string">"mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span>
-}</div>
+        <span class="key">"type"</span>: <span class="string">"auth"</span>,
+        <span class="key">"apiKey"</span>: <span class="string">"mk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span>
+    }</div>
 
         <h3>📤 <span data-i18n="websocket_format_title">推送消息格式</span></h3>
-        <p data-i18n="websocket_format_desc">当新一期开奖完成时，服务器会推送以下格式的消息：</p>
+
+        <h4>📌 <span data-i18n="event_draw_start">开奖开始事件</span></h4>
+        <p data-i18n="draw_start_desc">开奖开始时推送：</p>
         <div class="code-block">{
-    <span class="key">"event"</span>: <span class="string">"draw_complete"</span>,
-    <span class="key">"period"</span>: <span class="number">23</span>,
-    <span class="key">"numbers"</span>: [<span class="number">38</span>, <span class="number">45</span>, <span class="number">23</span>, <span class="number">22</span>, <span class="number">42</span>, <span class="number">48</span>, <span class="number">4</span>],
-    <span class="key">"zodiacs"</span>: [<span data-i18n="zodiac_example_1"></span>, <span data-i18n="zodiac_example_2"></span>, <span data-i18n="zodiac_example_3"></span>, <span data-i18n="zodiac_example_4"></span>, <span data-i18n="zodiac_example_5"></span>, <span data-i18n="zodiac_example_6"></span>, <span data-i18n="zodiac_example_7"></span>],
-    <span class="key">"colors"</span>: [<span data-i18n="color_example_1"></span>, <span data-i18n="color_example_2"></span>, <span data-i18n="color_example_3"></span>, <span data-i18n="color_example_4"></span>, <span data-i18n="color_example_5"></span>, <span data-i18n="color_example_6"></span>, <span data-i18n="color_example_7"></span>],
-    <span class="key">"drawTime"</span>: <span class="string">"2026-01-01T20:30:00.000Z"</span>
-}</div>
+        <span class="key">"event"</span>: <span class="string">"draw_start"</span>,
+        <span class="key">"period"</span>: <span class="number">23</span>,
+        <span class="key">"totalBalls"</span>: <span class="number">7</span>,
+        <span class="key">"rollDurationPerBall"</span>: <span class="number">6000</span>,
+        <span class="key">"startTime"</span>: <span class="string">"2026-09-01T13:30:00.000Z"</span>
+    }</div>
+
+        <h4>📌 <span data-i18n="event_ball_draw">逐个球推送事件</span></h4>
+        <p data-i18n="ball_draw_desc">每个球揭晓时推送（共7次）：</p>
+        <div class="code-block">{
+        <span class="key">"event"</span>: <span class="string">"ball_draw"</span>,
+        <span class="key">"period"</span>: <span class="number">23</span>,
+        <span class="key">"ballIndex"</span>: <span class="number">1</span>,
+        <span class="key">"totalBalls"</span>: <span class="number">7</span>,
+        <span class="key">"number"</span>: <span class="number">38</span>,
+        <span class="key">"zodiac"</span>: <span class="string">"猫"</span>,
+        <span class="key">"color"</span>: <span class="string">"green"</span>,
+        <span class="key">"drawTime"</span>: <span class="string">"2026-09-01T13:30:06.000Z"</span>
+    }</div>
+
+        <h4>📌 <span data-i18n="event_draw_complete">开奖完成事件</span></h4>
+        <p data-i18n="draw_complete_desc">所有球揭晓后推送：</p>
+        <div class="code-block">{
+        <span class="key">"event"</span>: <span class="string">"draw_complete"</span>,
+        <span class="key">"period"</span>: <span class="number">23</span>,
+        <span class="key">"numbers"</span>: [<span class="number">38</span>, <span class="number">45</span>, <span class="number">23</span>, <span class="number">22</span>, <span class="number">42</span>, <span class="number">48</span>, <span class="number">4</span>],
+        <span class="key">"zodiacs"</span>: [<span data-i18n="zodiac_example_1"></span>, <span data-i18n="zodiac_example_2"></span>, <span data-i18n="zodiac_example_3"></span>, <span data-i18n="zodiac_example_4"></span>, <span data-i18n="zodiac_example_5"></span>, <span data-i18n="zodiac_example_6"></span>, <span data-i18n="zodiac_example_7"></span>],
+        <span class="key">"colors"</span>: [<span data-i18n="color_example_1"></span>, <span data-i18n="color_example_2"></span>, <span data-i18n="color_example_3"></span>, <span data-i18n="color_example_4"></span>, <span data-i18n="color_example_5"></span>, <span data-i18n="color_example_6"></span>, <span data-i18n="color_example_7"></span>],
+        <span class="key">"drawTime"</span>: <span class="string">"2026-09-01T13:30:42.000Z"</span>
+    }</div>
+
         <h3>📊 <span data-i18n="websocket_fields_title">字段说明</span></h3>
         <div class="table-wrap">
             <table>
-                <thead><tr><th data-i18n="field_label">字段</th><th data-i18n="type_label">类型</th><th data-i18n="desc_label">说明</th></tr></thead>
+                <thead>
+                    <tr><th data-i18n="field_label">字段</th><th data-i18n="type_label">类型</th><th data-i18n="desc_label">说明</th></tr>
+                </thead>
                 <tbody>
-                    <tr><td>event</td><td>string</td><td data-i18n="field_event">事件类型，固定为 "draw_complete"</td></tr>
+                    <tr><td>event</td><td>string</td><td data-i18n="field_event">事件类型：draw_start / ball_draw / draw_complete</td></tr>
                     <tr><td>period</td><td>integer</td><td data-i18n="field_period">期数</td></tr>
-                    <tr><td>numbers</td><td>array</td><td data-i18n="field_numbers">7个开奖号码（1-49）</td></tr>
-                    <tr><td>zodiacs</td><td>array</td><td data-i18n="field_zodiacs">7个号码对应的生肖</td></tr>
-                    <tr><td>colors</td><td>array</td><td data-i18n="field_colors">7个号码对应的色波（红/蓝/绿）</td></tr>
+                    <tr><td>ballIndex</td><td>integer</td><td data-i18n="field_ballIndex">当前球的位置（1-7），仅 ball_draw</td></tr>
+                    <tr><td>totalBalls</td><td>integer</td><td data-i18n="field_totalBalls">总球数（固定为7）</td></tr>
+                    <tr><td>number</td><td>integer</td><td data-i18n="field_number">当前球的号码（1-49），仅 ball_draw</td></tr>
+                    <tr><td>zodiac</td><td>string</td><td data-i18n="field_zodiac">当前球的生肖，仅 ball_draw</td></tr>
+                    <tr><td>color</td><td>string</td><td data-i18n="field_color">当前球的色波，仅 ball_draw</td></tr>
+                    <tr><td>numbers</td><td>array</td><td data-i18n="field_numbers_complete">7个开奖号码，仅 draw_complete</td></tr>
+                    <tr><td>zodiacs</td><td>array</td><td data-i18n="field_zodiacs_complete">7个号码对应的生肖，仅 draw_complete</td></tr>
+                    <tr><td>colors</td><td>array</td><td data-i18n="field_colors_complete">7个号码对应的色波，仅 draw_complete</td></tr>
                     <tr><td>drawTime</td><td>string</td><td data-i18n="field_drawTime">开奖时间 (ISO 8601)</td></tr>
                 </tbody>
             </table>
         </div>
-
-        <h3>📤 <span data-i18n="websocket_start_title">开奖开始事件</span></h3>
-        <p data-i18n="websocket_start_desc">当开奖开始时，服务器会推送：</p>
-        <div class="code-block">{
-    <span class="key">"event"</span>: <span class="string">"draw_complete"</span>,
-    <span class="key">"period"</span>: <span class="number">23</span>,
-    <span class="key">"numbers"</span>: [<span class="number">38</span>, <span class="number">45</span>, <span class="number">23</span>, <span class="number">22</span>, <span class="number">42</span>, <span class="number">48</span>, <span class="number">4</span>],
-    <span class="key">"zodiacs"</span>: [<span data-i18n="zodiac_example_1"></span>, <span data-i18n="zodiac_example_2"></span>, <span data-i18n="zodiac_example_3"></span>, <span data-i18n="zodiac_example_4"></span>, <span data-i18n="zodiac_example_5"></span>, <span data-i18n="zodiac_example_6"></span>, <span data-i18n="zodiac_example_7"></span>],
-    <span class="key">"colors"</span>: [<span data-i18n="color_example_1"></span>, <span data-i18n="color_example_2"></span>, <span data-i18n="color_example_3"></span>, <span data-i18n="color_example_4"></span>, <span data-i18n="color_example_5"></span>, <span data-i18n="color_example_6"></span>, <span data-i18n="color_example_7"></span>],
-    <span class="key">"drawTime"</span>: <span class="string">"2026-01-01T20:30:00.000Z"</span>,
-    <span class="key">"totalBalls"</span>: <span class="number">7</span>,
-    <span class="key">"rollDurationPerBall"</span>: <span class="number">6000</span>
-}</div>
 
         <h3>💡 <span data-i18n="example_label">示例</span></h3>
         <p data-i18n="websocket_example_desc">JavaScript 连接示例：</p>
@@ -162,7 +182,7 @@
 
         ws.<span class="key">onmessage</span> = (event) => {
             <span class="keyword">const</span> data = <span class="key">JSON</span>.<span class="key">parse</span>(event.data);
-    
+
             <span class="keyword">if</span> (data.type === <span class="string">'auth_success'</span>) {
                 <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_auth_success"></span>'</span>);
                 <span class="keyword">return</span>;
@@ -171,12 +191,20 @@
                 <span class="key">console</span>.<span class="key">error</span>(<span class="string">'<span data-i18n="ws_auth_failed"></span>'</span>, data.message);
                 <span class="keyword">return</span>;
             }
+            <span class="keyword">if</span> (data.event === <span class="string">'draw_start'</span>) {
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'🎰 开奖开始，第'</span> + data.period + <span class="string">'期'</span>);
+                <span class="keyword">return</span>;
+            }
+            <span class="keyword">if</span> (data.event === <span class="string">'ball_draw'</span>) {
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'🎯 第'</span> + data.ballIndex + <span class="string">'个球: '</span> + data.number + <span class="string">' ('</span> + data.zodiac + <span class="string">', '</span> + data.color + <span class="string">')'</span>);
+                <span class="keyword">return</span>;
+            }
             <span class="keyword">if</span> (data.event === <span class="string">'draw_complete'</span>) {
-                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'<span data-i18n="ws_draw_data"></span>'</span>, data);
+                <span class="key">console</span>.<span class="key">log</span>(<span class="string">'📊 开奖完成:'</span>, data);
             }
         };</div>
     </div>
-
+    
     <!-- ============================================================ -->
     <!-- 当前开奖 -->
     <div class="section" id="current">
@@ -435,7 +463,21 @@ const i18n = {
             "ws_auth_failed": "❌ 认证失败:",
             "ws_draw_data": "📊 开奖数据:",
             "param_lang_label": "可选，语言代码：zh（中文）、vi（越南语）、en（英语），默认 zh",
-            "param_lang": "语言代码：zh（中文）、vi（越南语）、en（英语），默认 zh"
+            "param_lang": "语言代码：zh（中文）、vi（越南语）、en（英语），默认 zh",
+            field_ballIndex: '当前球的位置（1-7）',
+            field_totalBalls: '总球数（固定为7）',
+            field_number: '当前球的号码（1-49）',
+            field_zodiac: '当前球的生肖',
+            field_color: '当前球的色波（red/blue/green）',
+            field_numbers_complete: '7个开奖号码',
+            field_zodiacs_complete: '7个号码对应的生肖',
+            field_colors_complete: '7个号码对应的色波',
+            event_draw_start: '开奖开始',
+            event_ball_draw: '逐个球推送',
+            event_draw_complete: '开奖完成',
+            draw_start_desc: '开奖开始时推送',
+            ball_draw_desc: '每个球揭晓时推送（共7次）',
+            draw_complete_desc: '所有球揭晓后推送'
         },
         en: {
             title: 'Developer Documentation',
@@ -542,7 +584,21 @@ const i18n = {
             "ws_auth_failed": "❌ Authentication failed:",
             "ws_draw_data": "📊 Draw data:",
             "param_lang_label": "Optional, language code: zh (Chinese), vi (Vietnamese), en (English), default zh",
-            "param_lang": "Language code: zh (Chinese), vi (Vietnamese), en (English), default zh"
+            "param_lang": "Language code: zh (Chinese), vi (Vietnamese), en (English), default zh",
+            field_ballIndex: 'Current ball position (1-7)',
+            field_totalBalls: 'Total balls (fixed 7)',
+            field_number: 'Current ball number (1-49)',
+            field_zodiac: 'Current ball zodiac',
+            field_color: 'Current ball color (red/blue/green)',
+            field_numbers_complete: '7 draw numbers',
+            field_zodiacs_complete: 'Zodiac signs for 7 numbers',
+            field_colors_complete: 'Colors for 7 numbers',
+            event_draw_start: 'Draw Start',
+            event_ball_draw: 'Ball by Ball Push',
+            event_draw_complete: 'Draw Complete',
+            draw_start_desc: 'Push when draw starts',
+            ball_draw_desc: 'Push when each ball is revealed (7 times)',
+            draw_complete_desc: 'Push after all balls are revealed'
         },
         vi: {
             title: 'Tài liệu dành cho nhà phát triển',
@@ -649,7 +705,21 @@ const i18n = {
             "ws_auth_failed": "❌ Xác thực thất bại:",
             "ws_draw_data": "📊 Dữ liệu quay số:",
             "param_lang_label": "Tùy chọn, mã ngôn ngữ: zh (Trung), vi (Việt), en (Anh), mặc định zh",
-            "param_lang": "Mã ngôn ngữ: zh (Trung), vi (Việt), en (Anh), mặc định zh"
+            "param_lang": "Mã ngôn ngữ: zh (Trung), vi (Việt), en (Anh), mặc định zh",
+            field_ballIndex: 'Vị trí quả bóng hiện tại (1-7)',
+            field_totalBalls: 'Tổng số bóng (cố định 7)',
+            field_number: 'Số quả bóng hiện tại (1-49)',
+            field_zodiac: 'Con giáp quả bóng hiện tại',
+            field_color: 'Màu quả bóng hiện tại (red/blue/green)',
+            field_numbers_complete: '7 số quay',
+            field_zodiacs_complete: 'Con giáp tương ứng với 7 số',
+            field_colors_complete: 'Màu sắc tương ứng với 7 số',
+            event_draw_start: 'Bắt đầu quay',
+            event_ball_draw: 'Đẩy từng quả bóng',
+            event_draw_complete: 'Hoàn thành quay',
+            draw_start_desc: 'Đẩy khi bắt đầu quay',
+            ball_draw_desc: 'Đẩy khi mỗi quả bóng được tiết lộ (tổng 7 lần)',
+            draw_complete_desc: 'Đẩy sau khi tất cả bóng được tiết lộ'
         }
     }
 };
