@@ -737,6 +737,18 @@ function updateCountdown() {
     }
     
     const diff = Math.max(0, Math.floor((next - vnTime) / 1000));
+
+    if (diff <= 180 && diff > 0) {
+        if (!isAnimating) {
+            setWaitingState();
+            statusText.textContent = '⏳ 等待开奖...';
+            statusText.className = 'status-text idle';
+        }
+        countdownDisplay.textContent =
+            `${String(Math.floor(diff / 3600)).padStart(2, '0')}:${String(Math.floor((diff % 3600) / 60)).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
+        return;
+    }
+    
     if (diff <= 0) {
         countdownDisplay.textContent = '🎰 开奖中...';
         return;
@@ -805,7 +817,11 @@ async function loadCurrentDraw() {
 
 async function loadHistory() {
     try {
-        const response = await fetch(`${API_BASE}/api/draw/history?limit=50`);
+        const countRes = await fetch(`${API_BASE}/api/draw/history?limit=1&offset=0`);
+        const countData = await countRes.json();
+        const total = countData.pagination?.total || 0;
+        
+        const response = await fetch(`${API_BASE}/api/draw/history?limit=${total}&offset=0`);
         const result = await response.json();
         if (result.success && result.data) {
             history = result.data.records || [];
