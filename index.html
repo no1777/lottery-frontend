@@ -819,7 +819,7 @@ async function loadHistory() {
     try {
         const countRes = await fetch(`${API_BASE}/api/draw/history?limit=1&offset=0`);
         const countData = await countRes.json();
-        const total = countData.pagination?.total || 0;
+        const total = countData.data?.total || 0;
 
         if (total === 0) {
             history = [];
@@ -830,7 +830,7 @@ async function loadHistory() {
         const response = await fetch(`${API_BASE}/api/draw/history?limit=${total}&offset=0`);
         const result = await response.json();
         if (result.success && result.data) {
-            history = result.data.records || [];
+            history = result.data?.records || [];
             renderHistory();
         }
     } catch (e) {
